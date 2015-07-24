@@ -11,6 +11,9 @@
     <!--[if lt IE 9]>
     <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/styles/default.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
   </head>
   <body>
     <div class="wrapper">
@@ -18,6 +21,9 @@
       <h1>Alex Moore - Niemi</h1>
       <p>software engineer</p>
 
+      <p class="view">
+      <img alt="a white man with a slightly curled mustache sitting on a patio in the sun" src="avatar.jpg">
+      </p>
 
       <p class="view">
       <a href="https://github.com/mooreniemi">on github</a><br>
@@ -28,8 +34,30 @@
 
       </header>
       <section>
-      <h3>me</h3>
-      <p>hi</p>
+      <h3>c'est moi</h3>
+      <pre><code class="json">&lt;script type="application/ld+json"&gt;
+{
+  "@context": "http://schema.org",
+  "@type": "Person",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Boston",
+    "addressRegion": "MA",
+    "postalCode": "02130"
+  },
+  "worksFor": "Zipcar",
+  "colleague": [
+    "http://www.xyz.edu/students/alicejones.html",
+    "http://www.xyz.edu/students/bobsmith.html"
+  ],
+  "email": "mailto:moore.niemi@gmail.com",
+  "image": "avatar.jpg",
+  "jobTitle": "Software Engineer",
+  "name": "Alex Moore - Niemi",
+  "url": "http://mooreniemi.github.io/"
+}
+&lt;/script&gt;</code>
+</pre>
       <h3>my work</h3>
       <p>ehhh</p>
       </section>
