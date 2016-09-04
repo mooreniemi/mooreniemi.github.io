@@ -5,4 +5,91 @@ date:   2016-09-04 16:23:30 -0400
 categories: me
 ---
 
+Back in March I interviewed with Facebook. They gave me a really nice
+rejection I learned a lot from. It was not an ideal interview for me. As
+it turned out, I'd just had to have surgery and was still in a bit of
+pain. I had not whiteboarded in an interview before, and knew I was going
+in without enough preparation. I regret that in the sense that I don't
+want to waste an interviewer's time.
 
+Anyway, the exercise they gave me--I don't think it matters to say as I am
+sure they switch them up--was the string permutations problem. I hadn't
+done it before and I was out of the habit of writing recursive functions.
+Really, given my background is in Ruby, I've never been much _in_ that
+habit. It's inefficient to do so. I almost finished the function, but knew
+I hadn't completed it so I was out.
+
+Regardless, this last week I checked in with myself to see if I've
+improved. I whiteboarded a solution in front of my partner then put it in
+a [file](https://gist.github.com/mooreniemi/0df992ab45b187757069cc3aa1199757)
+and executed it. With a couple minor changes (of syntax, not substance),
+it worked!
+
+```ruby
+def perms(str)
+  return [str] if str.length == 1
+  results = []
+  str.length.times do |i|
+    substring = str.dup
+    c = substring.slice!(i - 1)
+    perms(substring).map do |s|
+      results << c + s
+    end
+  end
+  results
+end
+
+RSpec.describe '#perms' do
+  it 'returns permutations' do
+    expect(perms('abc')).to match_array(
+      %w(abc bac cba cab bca acb)
+    )
+  end
+end
+```
+
+I've come to appreciate recursion as something I experience as a general
+shape, rather than as something explicitly executed. I can think through
+the execution though. It was learning DFS and BFS that ultimately helped
+me. With DFS, you have a very simple recursive function, and that's
+possible because you're using the actual execution stack as your own
+stack. Meanwhile in BFS you have to explicitly manage a queue.
+
+Here's all we need for DFS:
+
+```ruby
+class Node
+  attr_accessor :children,
+    :id
+
+  def initialize(id, children = [])
+    @id = id
+    @children  = children
+  end
+end
+
+def dfs(root)
+  puts "#{root.id}"
+  [root] + root.children.flat_map(&method(:dfs))
+end
+
+leaf = Node.new("A")
+parent = Node.new("B", [leaf])
+grandparent = Node.new("C", [parent])
+
+dfs(grandparent)
+```
+
+You can contrast that against my rather longer [BFS
+implementation](https://github.com/mooreniemi/experiments/blob/master/lib/tree.rb).
+
+As it goes, these aren't hard algorithms to learn. I just didn't have them
+down because I didn't use them super often. DFS did come up in dealing
+with a tree structure representation of settings in the last system
+I dealt with. But it isn't the specific algorithms that matter
+necessarily. To my chagrin, I do think the pressure to perform better in
+whiteboarding interviews has made me a better programmer.
+
+The remaining challenge is being able to handle an NP-Complete problem in
+those circumstances, like any time of CSP problem. Maybe in a few months
+I'll feel confident at that.
