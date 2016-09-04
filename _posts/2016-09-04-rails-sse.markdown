@@ -171,4 +171,6 @@ the [options detailed
 here](https://www.reddit.com/r/ruby/comments/2uwnia/anyone_using_ruby_websockets_in_production/).
 That said, for my own use case, I think it probably would've been fine to
 just pull from the client side on a 2 second timer rather than push from
-the server on a 2 second timer.
+the server on a 2 second timer. The nice thing about that is with
+concurrent users I can mostly hit a cache if my live data is updating less
+often than it is being requested.

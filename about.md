@@ -1,9 +1,15 @@
 ---
 layout: page
-title: about
+title: About
 permalink: /about/
 ---
 
-I'm a programmer with a "non-traditional" background. I think that means I have a lot to learn, but also some unique tools to learn with.
+This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](http://jekyllrb.com/)
 
-If you'd like to hire a skilled and collaborative software engineer [check out my resume](https://github.com/mooreniemi/resume).
+You can find the source code for the Jekyll new theme at:
+{% include icon-github.html username="jglovier" %} /
+[jekyll-new](https://github.com/jglovier/jekyll-new)
+
+You can find the source code for Jekyll at
+{% include icon-github.html username="jekyll" %} /
+[jekyll](https://github.com/jekyll/jekyll)
