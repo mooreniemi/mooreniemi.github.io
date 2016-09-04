@@ -1,93 +1,23 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>alex moore-niemi</title>
+---
+layout: default
+---
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/custom.css">
-    <link rel="stylesheet" href="stylesheets/github-light.css">
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
-    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/styles/default.min.css">
-    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
-    <script>hljs.initHighlightingOnLoad();</script>
-  </head>
-  <body>
-    <div class="wrapper">
-      <header>
-      <div class="h-resume">
-        <span class="p-name">
-          <img alt="a white man with a slightly curled mustache sitting on a patio in the sun" src="avatar.jpg" height="100" class="whimsy">
-          <div class="icon-row">
-            <p class="view p-contact h-card">
-            <a href="https://github.com/mooreniemi" alt="on github"><i class="fa fa-github-alt"></i></a>
-            <a href="https://twitter.com/feminstwerewolf" alt="on twitter"><i class="fa fa-twitter"></i></a>
-            <a href="http://why-capslock-though.tumblr.com/" alt="on tumblr"><i class="fa fa-tumblr-square"></i></a>
-            <a href="https://keybase.io/meatball" class="u-key" alt="on keybase"><i class="fa fa-key"></i></a>
-            </p>
-            <a class="p-contact h-card" href="mailto:moore.niemi@gmail.com">
-              <h1>Alex Moore - Niemi</h1>
-            </a>
-          </div>
-          <img alt="vcard qr code" src="vcard_qrcode.jpg">
-        </span>
+<div class="home">
 
-      </div>
+  <h1 class="page-heading">Posts</h1>
 
-      </header>
+  <ul class="post-list">
+    {% for post in site.posts %}
+      <li>
+        <span class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</span>
 
-      <section>
-      <h3>resumé</h3>
-      <div class="h-resume">
-        <p class="p-summary">My professional focus so far has been <span class="p-skill">Web APIs</span>, especially <span class="p-skill">REST</span> and <span class="p-skill">hypermedia</span>. My current toolkit includes: <span class="p-skill">Ruby</span>, <span class="p-skill">vim</span> (see my <a href="https://gist.github.com/anonymous/fda691ad202b56b04a9928425b91b553">~/.vimrc</a>), <span class="p-skill">TDD</span>, <span class="p-skill">Kanban</span>, and <span class="p-skill">pair programming</span>. I believe in working in a team. I care about the semantic web. I'm interested in functional programming, type systems, and programming history generally. I adhere to the <a href="https://www.acm.org/about/se-code">Software Engineering Code of Ethics and Professional Practice</a>. My resume is available in <a href="https://github.com/mooreniemi/resume">pdf format on github</a>.</p>
-      </div>
+        <h2>
+          <a class="post-link" href="{{ post.url | prepend: site.baseurl }}">{{ post.title | escape }}</a>
+        </h2>
+      </li>
+    {% endfor %}
+  </ul>
 
-      <h3>non-code work</h3>
-      <span class="p-publications">
-      <p>My most polished presentation is probably: <a href="http://mooreniemi.github.io/hypermedia-presentation/#/">RESTful Web APIs and the hypermedia constraint</a></p>
-      <p>I have a sidebar in the upcoming book <a href="https://www.amazon.com/Developer-Testing-Building-Addison-Wesley-Signature/dp/0134291069">Developer Testing</a> on how to think about types as a way of extending design by contract.</p>
-      <p>My off the cuff thoughts and lil code snippets tend to end up on <a href="http://why-capslock-though.tumblr.com/">my blog</a>.</p>
-      </span>
+  <p class="rss-subscribe">subscribe <a href="{{ "/feed.xml" | prepend: site.baseurl }}">via RSS</a></p>
 
-      <h3>c'est moi</h3>
-      <pre><code class="json">&lt;script type="application/ld+json"&gt;
-{
-  "@context": "http://schema.org",
-  "@type": "Person",
-  "name": "Alex Moore - Niemi",
-  "worksFor": {
-    "@type": "Organization",
-    "name": "Zipcar.com (ZIP)"
-  },
-  "jobTitle": "Software Engineer",
-  "colleague": [
-    "http://asghiah.wordpress.com/",
-    "https://stephenkarger.com",
-    "http://www.vance.com"
-  ],
-  "address": {
-    "@type": "PostalAddress",
-    "addressLocality": "Boston",
-    "addressRegion": "MA",
-    "postalCode": "02130"
-  },
-  "email": "mailto:moore.niemi@gmail.com",
-  "url": "http://mooreniemi.github.io/",
-  "image": "avatar.jpg"
-}
-&lt;/script&gt;</code></pre>
-
-      </section>
-      <footer>
-      <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
-      </footer>
-    </div>
-    <script src="javascripts/scale.fix.js"></script>
-
-  </body>
-</html>
+</div>
