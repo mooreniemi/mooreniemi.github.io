@@ -91,5 +91,5 @@ necessarily. To my chagrin, I do think the pressure to perform better in
 whiteboarding interviews has made me a better programmer.
 
 The remaining challenge is being able to handle an NP-Complete problem in
-those circumstances, like any time of CSP problem. Maybe in a few months
+those circumstances, like any type of CSP problem. Maybe in a few months
 I'll feel confident at that.
