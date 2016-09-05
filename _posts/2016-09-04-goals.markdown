@@ -59,8 +59,7 @@ Here's all we need for DFS:
 
 ```ruby
 class Node
-  attr_accessor :children,
-    :id
+  attr_accessor :children, :id
 
   def initialize(id, children = [])
     @id = id
@@ -80,8 +79,42 @@ grandparent = Node.new("C", [parent])
 dfs(grandparent)
 ```
 
-You can contrast that against my rather longer [BFS
-implementation](https://github.com/mooreniemi/experiments/blob/master/lib/tree.rb).
+You can contrast that against my somewhat longer BFS implementation (I'm
+skipping the initialization of the `Node`s etc for brevity, but you can
+see that
+[here](https://github.com/mooreniemi/experiments/blob/master/spec/dijkstra_spec.rb)):
+
+```ruby
+class Node
+  attr_reader :value
+  attr_accessor :adj_list, :parent, :distance
+
+  def initialize(value)
+    @value = value
+    @parent = nil
+    @distance = Float::INFINITY
+    @adj_list = []
+  end
+end
+
+Graph = Struct.new(:nodes) do
+  def breadth_traversal
+    nodes.first.distance = 0
+    q = [nodes.first]
+
+    until q.empty?
+      (current = q.shift).adj_list.each do |n|
+        next unless n.distance == Float::INFINITY
+        n.distance = current.distance + 1
+        n.parent = current
+        q.unshift(n)
+      end
+    end
+
+    self
+  end
+end
+```
 
 As it goes, these aren't hard algorithms to learn. I just didn't have them
 down because I didn't use them super often. DFS did come up in dealing
@@ -91,5 +124,7 @@ necessarily. To my chagrin, I do think the pressure to perform better in
 whiteboarding interviews has made me a better programmer.
 
 The remaining challenge is being able to handle an NP-Complete problem in
-those circumstances, like any type of CSP problem. Maybe in a few months
-I'll feel confident at that.
+whiteboarding circumstances. So that's my next goal. I can recognize them
+well enough and I think that is a core competency for a working
+programmer. But to be a really _good_ programmer I think I should be able
+to give a first pass at things even if I can't get to my algorithms books.
