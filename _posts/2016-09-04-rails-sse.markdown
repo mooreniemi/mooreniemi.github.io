@@ -1,6 +1,7 @@
 ---
 layout: post
 title: Rails SSE is for discrete push events, not streaming
+categories: rails web
 ---
 
 Recently I had occasion to experiment with streaming content from a Rails

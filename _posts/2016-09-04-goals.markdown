@@ -2,7 +2,7 @@
 layout: post
 title:  goals
 date:   2016-09-04 16:23:30 -0400
-categories: me
+categories: me cs
 ---
 
 Back in March I interviewed with Facebook. They gave me a really nice
