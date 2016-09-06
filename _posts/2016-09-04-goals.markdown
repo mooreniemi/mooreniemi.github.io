@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  goals
+title:  goals (and graph algorithms)
 date:   2016-09-04 16:23:30 -0400
 categories: me cs
 ---
