@@ -54,11 +54,10 @@ for _every_ node), we can ask: what rules apply to any one node?
 
 0. If you have no node, trivially this is balanced.
 1. If you have one node with no children, this is balanced.
-2. Operates on both sides:
-    1. If you have a left subtree, it must be balanced.
-    2. If you have right subtree, it must be balanced.
-3. If you look at both left and right, they're balanced, and the
-   difference in their heights/depths is `<= 1`.
+2. Time to check the kids:
+    1. A node's left subtree must be balanced.
+    2. A node's right  subtree must be balanced.
+3. The difference in the left and right subtree heights/depths is `<= 1`.
 
 Now, translating this to a recursive function takes another little leap,
 which is understanding how the computer executes things and puts them on
@@ -77,7 +76,7 @@ def is_balanced?(root)
 		# rule 3.2
     r, r_depth = is_balanced?(root.right)
 
-		# rule 4
+		# rule 3 and rule 4
     [r && l && ((l_depth - r_depth).abs <= 1), [l_depth, r_depth].max + 1]
 end
 ```
@@ -100,7 +99,7 @@ ib?(3)  ib?(nil)             ib?(nil) ib?(3)
 
 The first thing I want to observe is that we have to check both left and
 right even when one is `nil`. Everywhere we see `ib?(nil)` we're going to
-be returning `[true, 0]`, because rule 0 tells us a non-existent node is
+be returning `[true, 0]`, because rule 1 tells us a non-existent node is
 balanced at a depth of 0.
 
 Let's focus on one half of the tree for a moment.
