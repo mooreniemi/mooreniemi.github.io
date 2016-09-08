@@ -17,7 +17,7 @@ title: bumbling workerbee
 author: alex moore-niemi
 email: moore.niemi@gmail.com
 description: > # this means to ignore newlines until "baseurl:"
- Accruing evidence that I learn things while I break things.
+  Accruing evidence that I learn things while I break things.
 baseurl: "" # the subpath of your site, e.g. /blog
 url: "mooreniemi.github.io" # the base hostname & protocol for your site
 twitter_username: feminstwerewolf
@@ -27,3 +27,23 @@ github_username:  mooreniemi
 markdown: kramdown
 theme: minima
 
+highlighter: rouge
+
+# More › http://kramdown.gettalong.org/quickref.html
+# Options › http://kramdown.gettalong.org/options.html
+kramdown:
+  input:          GFM
+  # https://github.com/jekyll/jekyll/pull/4090
+  syntax_highlighter: rouge
+
+  # Rouge Highlighter in Kramdown › http://kramdown.gettalong.org/syntax_highlighter/rouge.html
+  # span, block element options fall back to global
+  syntax_highlighter_opts:
+    # Rouge Options › https://github.com/jneen/rouge#full-options
+    css_class: 'highlight'
+    #line_numbers: true # bad idea, spans don't need linenos and would inherit this option
+    span:
+      line_numbers: false
+    block:
+      line_numbers: true
+      start_line: 1
