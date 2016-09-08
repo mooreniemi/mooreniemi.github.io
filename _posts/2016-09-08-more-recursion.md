@@ -82,8 +82,9 @@ end
 ```
 
 Now, at the end there's a bit more going on than my literal translation of
-rule 4. If we walk through using this function I think we can clarify why.
-I'm going to abbreviate the function name to `ib?`.
+rule 4. (Like, what is `[l_depth, r_depth].max + 1` for?) If we walk
+through using this function I think we can clarify why. I'm going to
+abbreviate the function name to `ib?`.
 
 ```
                  ib?(1)
@@ -150,10 +151,16 @@ ib?(nil) ib?(nil)
 [t, 0]    [t, 0]
 ```
 
-The function returns as soon as we've rolled back up to `[f, 3]` on line
-6 because it fails the first part of our condition `l && r`. I think this
-function has a nice shape for recursion, and we can annotate it with those
-observations:
+The extra bookkeeping we're doing on line 13 that isn't encompassed
+directly by rule 4 could be posed as another sort of implicit rule we're
+relying on from the tree structure: every jump up adds one to the max
+subtree height. This saves us a whole other traversal just to assign
+depths to the nodes.
+
+Finally, the function returns as soon as we've rolled back up to `[f, 3]`
+on line 6 because it fails the first part of our condition `l && r`.
+I think this function has a nice shape for recursion, and we can annotate
+it with those observations:
 
 ```ruby
 def is_balanced?(root)
