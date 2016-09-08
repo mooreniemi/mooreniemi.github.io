@@ -393,4 +393,4 @@ settings](http://nithinbekal.com/posts/ruby-tco/) to get TCO, but
 personally I am happy enough to write iterative code where that's not an
 option.
 
-[^1]: If you want to see totally explicit management of a stack check out this bizarre and inadvisable solution I came up with [here](https://github.com/mooreniemi/experiments/blob/master/spec/ifib_spec.rb#L22). It is a lot more work/LOC for me to do what the computer can do for me for free.
+[^1]: If you want to see totally explicit management of a stack check out this bizarre and inadvisable solution I came up with [here](https://github.com/mooreniemi/experiments/blob/master/spec/ifib_spec.rb#L22). It is a lot more work/LOC for me to do what the computer can do for me for 'free', but we won't hit a stack error!
