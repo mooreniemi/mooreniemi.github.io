@@ -321,13 +321,13 @@ Until you've spent time "unfurling" and "furling back up" recursive
 functions, the position of the call might not seem so important. What can
 we possibly know, based on its position, about its behavior?
 
-Well, if nothing else, we know its return value must be usable as its
-parameters. So, we need to somehow change the function signature to allow
-us to do that. When we do, we can carry over values from previous stack
-frames _and only those values_. (Rather than the whole sequence or the
-whole "tree" as I drew it above.) Here's an example where to preserve the
-original function signature we use a lambda inside our method to capture
-the recursive calls:
+Well, if nothing else, we know its return value must be usable in whole or
+in part as its parameters. So, we need to somehow change the function
+signature to allow us to do that. When we do, we can carry over values
+from previous stack frames _and only those values_. (Rather than the whole
+sequence or the whole "tree" as I drew it above.) Here's an example where
+to preserve the original function signature we use a lambda inside our
+method to capture the recursive calls:
 
 ```ruby
 def fib_of(n)
