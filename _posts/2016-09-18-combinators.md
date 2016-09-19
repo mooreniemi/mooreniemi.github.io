@@ -340,5 +340,5 @@ aviary](https://hackage.haskell.org/package/data-aviary-0.4.0/docs/Data-Aviary-B
 is super useful[^3].
 
 [^1]: Personally I wish [refinements](https://ruby-doc.org/core-2.1.1/doc/syntax/refinements_rdoc.html) were more popular, because it'd help this a lot.
-[^2]: If I don't care about clarity, and I want chaining with no repetition I can do something hairy with `zip`: `a.zip(b).collect {|e| e.map(&:length) }.map(&:uniq).all? {|e| e.size == 1 }`. Bit of a mouthful eh? And do you follow[^2] exactly what I'm doing here, like, intent-wise? [Here's the play-by-play](https://gist.github.com/mooreniemi/26771e58c3a4961ba1e2a7830b97351c).
+[^2]: If I don't care about clarity, and I want chaining with no repetition I can do something hairy with `zip`: `a.zip(b).collect {|e| e.map(&:length) }.map(&:uniq).all? {|e| e.size == 1 }`. Bit of a mouthful eh? And do you follow exactly what I'm doing here, like, intent-wise? [Here's the play-by-play](https://gist.github.com/mooreniemi/26771e58c3a4961ba1e2a7830b97351c).
 [^3]: The type signatures basically led me through what I needed to write.
