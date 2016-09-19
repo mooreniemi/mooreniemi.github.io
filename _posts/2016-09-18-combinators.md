@@ -267,7 +267,7 @@ with `zip`: `a.zip(b).collect {|e| e.map(&:length) }.map(&:uniq).all? {|e|
 e.size == 1 }`. Bit of a mouthful eh? And do you follow[^2] exactly what
 I'm doing here, like, intent-wise?)
 
-If I can accept some duplication, I can do something pretty clearer:
+If I can accept some duplication, I can do something pretty clear:
 
 ```ruby
 a.map(&:length) == b.map(&:length)
