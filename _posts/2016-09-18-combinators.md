@@ -44,9 +44,9 @@ start there too.
 ## blackbird
 
 Let's say we have a list of lists, and we want to get the sum of all the
-lists. So, we have a list like so: `l = [[1], [1, 2], [1, 2, 3]]` and
-since the lengths are respectively 1, 2, and 3, we get `6` for the sum of
-all the lengths.
+lengths of the lists. So, we have a list like so: `l = [[1], [1, 2], [1,
+2, 3]]` and since the lengths are respectively 1, 2, and 3, we get `6` for
+the sum of all the lengths.
 
 In the most **concrete** implementation of this behavior, I can simply do:
 `l.map(&:length).reduce(0,:+)`. Now, what if I want to go more
