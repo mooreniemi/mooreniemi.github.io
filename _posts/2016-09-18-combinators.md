@@ -7,7 +7,9 @@ title: combinators in ruby
 videos at a steady clip. This one especially, by [Amar
 Shah](https://twitter.com/amar47shah), caught my interest:
 
-<iframe width="420" height="315" src="https://youtu.be/seVSlKazsNk" frameborder="0">&nbsp;</iframe>
+<iframe width="560" height="315"
+src="https://www.youtube.com/embed/seVSlKazsNk" frameborder="0"
+allowfullscreen></iframe>
 
 This video resonated with me especially because recently [The Morning
 Paper](https://blog.acolyer.org/) highlighted a paper called "[Why
