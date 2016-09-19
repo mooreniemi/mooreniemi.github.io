@@ -262,9 +262,10 @@ and `b = [[9], [8,7], [6,5,4]]`, we'd return `true`. We know we need to
 `map(&:length)` over each sublist, and then we need to `==` each length.
 (For simplicity these are pre-sorted lists.)
 
-Naively, if I want chaining with no repetition I can do: `a.zip(b).collect {|e|
-e.map(&:length) }.map(&:uniq).all? {|e| e.size == 1 }`. Bit of a mouthful
-eh? And do you follow[^2] exactly what I'm doing here, like, intent-wise?
+(Naively, if I want chaining with no repetition I can do something hairy
+with `zip`: `a.zip(b).collect {|e| e.map(&:length) }.map(&:uniq).all? {|e|
+e.size == 1 }`. Bit of a mouthful eh? And do you follow[^2] exactly what
+I'm doing here, like, intent-wise?)
 
 If I can accept some duplication, I can do something a bit clearer:
 
