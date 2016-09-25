@@ -1,7 +1,6 @@
 ---
 layout: post
 title: combinators in Ruby
-categories: ruby cs
 ---
 
 [Strange Loop conference](http://www.thestrangeloop.com/) is outputting
