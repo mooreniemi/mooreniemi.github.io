@@ -1,5 +1,6 @@
 ---
 layout: post
+categories: ruby
 title: graph-function
 ---
 
