@@ -1,7 +1,7 @@
 ---
 layout: post
 categories: ruby
-title: graph-function
+title: Graph::Function, a gem for graphing functions
 ---
 
 When I do katas I often do several iterations with a focus on performance.
