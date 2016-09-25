@@ -25,12 +25,7 @@ of using the library with some exercise code:
 
 ```ruby
 require 'graph/function'
-
-file = File.expand_path('../comparing.gif', __FILE__)
-Graph::Function.configure do |config|
-  config.terminal = 'gif'
-  config.output = file
-end
+Graph::Function.as_gif(File.expand_path('../comparing.gif', __FILE__))
 
 def bubble_sort(array)
   n = array.length
@@ -51,7 +46,6 @@ def sort(array)
   array.sort
 end
 
-puts "output: #{file}"
 Graph::Function::IntsComparison.of(method(:sort), method(:bubble_sort))
 ```
 
