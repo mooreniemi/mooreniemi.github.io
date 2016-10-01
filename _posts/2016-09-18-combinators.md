@@ -239,8 +239,13 @@ like this: `map f (map g xs) = map (f . g) xs`. So this will pass:
   end
 ```
 
-Notice now we're **only calling `map` once**! This isn't a huge savings
-(just a constant factor), but it's free! Pretty cool, I think.
+Notice now we're **only calling `map` once**! Theoretically, this isn't
+a huge savings (just a constant factor), but it's free! Pretty cool,
+I think. Unfortunately in Ruby, this doesn't [_actually_ perform
+better](https://github.com/mooreniemi/experiments/blob/master/lib/compose.rb)
+in real execution:
+
+![performance is worse for composition](/images/map_vs_compose.gif)
 
 Incidentally, what I wanted was to be able to do something more "normal"
 for readability, like `meow.louder`. (Like we achieved using `tap`.) How
