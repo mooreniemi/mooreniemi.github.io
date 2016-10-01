@@ -230,7 +230,7 @@ What I think we can say is objectively better is the performance benefit
 we get from being able to `compose` functions.
 
 In a functional language, we can take advantage of a theorem that looks
-like this: `map f (map g xs) = map (f . g) xs`. Now this will pass:
+like this: `map f (map g xs) = map (f . g) xs`. So this will pass:
 
 ```ruby
   it 'obeys map f (map g xs) = map (f . g) xs' do
