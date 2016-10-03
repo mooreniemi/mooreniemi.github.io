@@ -12,11 +12,11 @@ it in C? So, I wrote another C extension:
 [Proc#compose](https://github.com/mooreniemi/proc_compose).
 
 As I did last time, I started out with just a [basic
-experiment](https://github.com/mooreniemi/compose) then extracted it into
-a gem. The experiment includes some information about the main gem I found
-offering `compose`: [funkify](https://github.com/banister/funkify). (It is
-much slower than the Ruby version I wrote, but it's not a totally fair
-comparison.)
+experiment](https://github.com/mooreniemi/compose) then I extracted it
+into a gem. The experiment includes some information about the main gem
+I found offering `compose`:
+[funkify](https://github.com/banister/funkify). (It is much slower than
+the Ruby version I wrote, but it's not a totally fair comparison.)
 
 Anyway, the C extension's performance is better than its Ruby
 counterpart, but still not as good as just chaining:
