@@ -152,8 +152,8 @@ they _still return a valid `Relation` even when nothing was put in_:
 
 ```ruby
 def self.by_procedure(procedure)
-  if procedure == [nil]
-    where.not(procedure_id: procedure)
+  if procedure.nil?
+    all # note this respects previous scopes
   else
     where(procedure_id: procedure)
   end
@@ -163,9 +163,9 @@ end
 Once we've done that we can chain these suckers without fear!
 
 ```ruby
-Pin.by_surgeon([surgeons]).
-  by_procedure([procedures]).
-  or_whatever([whatevers])
+Pin.by_surgeon(surgeons).
+  by_procedure(procedures).
+  or_whatever(whatevers)
 ```
 
 This is the general principle behind the entire refactor: we want to make
@@ -220,10 +220,10 @@ shot](https://github.com/mooreniemi/Transbucket_Rails/blob/63f1361968f9ee29f932f
 
 ```ruby
 class PinFilterQuery
-  attr_accessor :pins
   VALID_FILTERS = [:procedures, :surgeons, :general, :complications]
   PERMITTED_SCOPES = [:ftm, :mtf, :top, :bottom, :need_category]
   attr_reader(*VALID_FILTERS)
+  attr_accessor :pins
 
   def initialize(keywords)
     @procedures = keywords[:procedure]
@@ -246,8 +246,8 @@ class PinFilterQuery
     Rails.cache.fetch(cache_key_for(active_filters, keywords)) do
       Pin.instance_eval { eval args }.
         tagged_with(*complications).
-        by_procedure([procedures].flatten).
-        by_surgeon([surgeons].flatten).
+        by_procedure(procedures).
+        by_surgeon(surgeons).
         recent
     end
   end
@@ -266,7 +266,6 @@ class PinFilterQuery
     return if scope.nil?
     scope.collect!(&:parameterize).collect!(&:underscore).collect!(&:to_sym).
       collect! {|s| s if PERMITTED_SCOPES.include?(s) }
-    scope
   end
 end
 ```
