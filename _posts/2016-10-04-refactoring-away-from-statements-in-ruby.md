@@ -222,7 +222,8 @@ shot](https://github.com/mooreniemi/Transbucket_Rails/blob/63f1361968f9ee29f932f
 class PinFilterQuery
   attr_accessor :pins
   VALID_FILTERS = [:procedures, :surgeons, :general, :complications]
-  attr_accessor(*VALID_FILTERS)
+  PERMITTED_SCOPES = [:ftm, :mtf, :top, :bottom, :need_category]
+  attr_reader(*VALID_FILTERS)
 
   def initialize(keywords)
     @procedures = keywords[:procedure]
@@ -263,7 +264,8 @@ class PinFilterQuery
 
   def format_scope(scope)
     return if scope.nil?
-    scope.collect!(&:parameterize).collect!(&:underscore).collect!(&:to_sym)
+    scope.collect!(&:parameterize).collect!(&:underscore).collect!(&:to_sym).
+      collect! {|s| s if PERMITTED_SCOPES.include?(s) }
     scope
   end
 end
