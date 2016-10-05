@@ -174,9 +174,9 @@ consume. For the scopes on the model, this means pushing the conditional
 logic down into them but we can also do it in the calling object.
 
 For general scopes, I used `instance_eval { eval args }`. This uses Ruby's
-own method dispatch as a safety against malicious injection (you'll want
-to add your own white-listing too in most cases anyway). Again, I needed
-to find a way to make that a no-op when nothing was handed in to `args`.
+own method dispatch as a safety against malicious injection (in
+combination with white-listing of those methods[^0]). Again, I needed to
+find a way to make that a no-op when nothing was handed in to `args`.
 Well, it turns out you can send a class name to itself and, voila, it'll
 return itself:
 
@@ -310,6 +310,6 @@ without that formal aspect laid bare, I hope you can appreciate the
 [difference in the "before" and "after"
 shots](https://github.com/mooreniemi/Transbucket_Rails/commit/63f1361968f9ee29f932fbc45875b4df47513639).
 
+[^0]: Like in this case, we want to make sure none of the `ActiveRecord` methods are available except scopes. Don't want folks using `delete_all` as a keyword!
 [^1]: For instance, why didn't I move the cache key logic from 14-20 out entirely into a separate method to call inside `#filtered`?
 [^2]: Not to be pedantic, but this is the _sweetspot_ of functional programming and one of its key benefits.
-
