@@ -152,11 +152,8 @@ they _still return a valid `Relation` even when nothing was put in_:
 
 ```ruby
 def self.by_procedure(procedure)
-  if procedure.nil?
-    all # note this respects previous scopes
-  else
-    where(procedure_id: procedure)
-  end
+  return all if procedure.nil? # note this respects previous scopes
+  where(procedure_id: procedure)
 end
 ```
 
