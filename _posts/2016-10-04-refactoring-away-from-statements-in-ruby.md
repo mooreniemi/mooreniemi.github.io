@@ -174,11 +174,11 @@ consume. For the scopes on the model, this means pushing the conditional
 logic down into them but we can also do it in the calling object.
 
 For general scopes, I used `instance_eval { eval args }`. This uses Ruby's
-own method dispatch as a safety against malicious injection (you could add
-your own white-listing if you wanted to be extra cautious). Again,
-I needed to find a way to make that a no-op when nothing was handed in to
-`args`. Well, it turns out you can send a class name to itself and, voila,
-it'll return itself:
+own method dispatch as a safety against malicious injection (you'll want
+to add your own white-listing too in most cases anyway). Again, I needed
+to find a way to make that a no-op when nothing was handed in to `args`.
+Well, it turns out you can send a class name to itself and, voila, it'll
+return itself:
 
 ```ruby
 String.instance_eval { eval 'String' }
