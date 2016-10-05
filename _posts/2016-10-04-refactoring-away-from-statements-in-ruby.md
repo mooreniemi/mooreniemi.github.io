@@ -312,5 +312,5 @@ without that formal aspect laid bare, I hope you can appreciate the
 shots](https://github.com/mooreniemi/Transbucket_Rails/commit/63f1361968f9ee29f932fbc45875b4df47513639).
 
 [^0]: Like in this case, we want to make sure none of the `ActiveRecord` methods are available except scopes. Don't want folks using `delete_all` as a keyword!
-[^1]: For instance, why didn't I move the cache key logic from 14-20 out entirely into a separate method to call inside `#filtered`?
+[^1]: For instance, why didn't I move the cache key logic from 15-21 out entirely into a separate method to call inside `#filtered`?
 [^2]: Not to be pedantic, but this is the _sweetspot_ of functional programming and one of its key benefits.
