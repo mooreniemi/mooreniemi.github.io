@@ -1,5 +1,6 @@
 ---
 layout: post
+categories: haskell fp mooc cs
 title: types, tests, and paper
 ---
 
