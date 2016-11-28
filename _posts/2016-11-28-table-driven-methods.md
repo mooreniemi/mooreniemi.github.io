@@ -10,7 +10,7 @@ or so ago and one of the sections I found kind of intriguing was
 Methods](https://www.safaribooksonline.com/library/view/code-complete-second/0735619670/ch18.html).
 
 I always found the example in the book a bit dense, and not found many
-examples online that I really found tractable. But this weekend I happened
+examples online that I felt were tractable. But this weekend I happened
 upon a good case to use a TDM, so I figured I would document it. I'm not
 an amazing Javascript programmer so as to the style of my implementation,
 well, _caveat lector!_
@@ -18,8 +18,9 @@ well, _caveat lector!_
 The example problem to solve I'm going to use is [Conway's Game of
 Life](https://en.wikipedia.org/wiki/Conway's_Game_of_Life). I'd not
 programmed it before myself and it was pretty fun to do. Its ruleset
-affords us a good opportunity to implement slightly non-trivial
-conditional logic that is still short enough to keep in mind as we go.
+affords us a good opportunity to implement a TDM because it's slightly
+non-trivial conditional logic that is still short enough to keep in mind
+as we go.
 
 Here's the rules I copied from [Disruptive Communications's blog post on
 GOL](http://disruptive-communications.com/conwaylifejavascript/):
@@ -29,29 +30,37 @@ GOL](http://disruptive-communications.com/conwaylifejavascript/):
 3. If a live cell has more than three live neighbours, it dies
 4. If a live cell has two or three live neighbours, it continues living
 
-It doesn't really matter if you don't know the domain of this problem.
-Reading through these rules, we can easily imagine a complicated `switch`
-or set of `if`/`else` statements to capture the logic. But at base, we
-really have 2 dimensions that are fully enumerable into very small sets.
-One dimension is whether a cell is alive or dead. The other dimension is
-the number of live neighbors. These are both simple integers if we `clamp`
-the live neighbor count at the maximum relevant `n`.
+It doesn't really matter if you don't know the domain of this problem as
+long as you have a feeling for how to translate those rules into code.
+Reading through these rules, I can easily imagine a complicated `switch`
+or set of `if`/`else` statements to capture the logic. Like you have some
+outer `if`/`else` for the liveness or deadness of a cell, and then some
+additional statements within the liveness branch to codify the rest.
+
+But at base, we really have 2 dimensions of logic that are fully and
+independently enumerable into very small sets. One dimension, the
+outermost dimension, is whether a cell is alive or dead. The other
+dimension is the number of live neighbors. These are both simple integers
+if we `clamp` the live neighbor count at the maximum relevant `n`.
 
 I'm going to work inside out and start with the inner dimensions dependent
 on live neighbor count. Here's how I grab that count, which isn't super
 important but is some context:
 
 ```javascript
+// get the liveness of every neighbor of the cell I care about
 var neighborhood = getNeighbors(i).map(function(e) { return isLive(grid, e); });
+// filter them for only true values (for live cells)
 var numberOfLiveNeighbors = neighborhood.filter(utils.identity).length.clamp(0, 4);
 ```
 
-So `numberOfLiveNeighbors` is guaranteed to be some value between 0 and 4.
+Again, by `clamp`, `numberOfLiveNeighbors` is guaranteed to be some value
+between 0 and 4.
 
 Using live neighbor count as our index key, we need to encode the
-conditions of the second dimension. For instance, we know a live cell with
-less than 2 neighbors will die, so the 0 and 1 position of a live cell's
-states depending on neighbor count should both be `'dead'`:
+conditions of the second dimension. For instance, one condition is that we
+know a live cell with less than 2 neighbors will die, so the 0 and
+1 position of a **live** cell's potential states should both be `'dead'`:
 
 ```javascript
 // NOTE: 0 and 1 are valued 'dead', because of rule #2
