@@ -23,10 +23,10 @@ Here's the rules I copied from [Disruptive
 Communications](http://disruptive-communications.com/conwaylifejavascript/):
 
 ```
-- If a dead cell has exactly three live neighbours, it comes to life
-- If a live cell has less than two live neighbours, it dies
-- If a live cell has more than three live neighbours, it dies
-- If a live cell has two or three live neighbours, it continues living
+1. If a dead cell has exactly three live neighbours, it comes to life
+2. If a live cell has less than two live neighbours, it dies
+3. If a live cell has more than three live neighbours, it dies
+4. If a live cell has two or three live neighbours, it continues living
 ```
 
 Reading through these, we can easily imagine a complicated `switch` or set
@@ -43,10 +43,13 @@ var neighborhood = getNeighbors(i).map(function(e) { return isLive(grid, e); });
 var numberOfLiveNeighbors = neighborhood.filter(utils.identity).length.clamp(0, 4);
 ```
 
-Next we need to encode the conditions of the second dimension, based on
-that live neighbor count:
+Using live neighbor count as our index key, we need to encode the
+conditions of the second dimension. For instance, we know a live cell with
+less than 2 neighbors will die, so the 0 and 1 position of a live cell's
+states depending on neighbor count should both be `'dead'`:
 
 ```javascript
+// NOTE: 0 and 1 are valued 'dead', because of rule #2
 var nextLivingState = ['dead', 'dead', 'live', 'live', 'dead'];
 var nextDeadState = ['dead', 'dead', 'dead', 'live', 'dead'];
 ```
