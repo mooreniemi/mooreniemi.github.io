@@ -22,12 +22,10 @@ conditional logic.
 Here's the rules I copied from [Disruptive
 Communications](http://disruptive-communications.com/conwaylifejavascript/):
 
-```
 1. If a dead cell has exactly three live neighbours, it comes to life
 2. If a live cell has less than two live neighbours, it dies
 3. If a live cell has more than three live neighbours, it dies
 4. If a live cell has two or three live neighbours, it continues living
-```
 
 Reading through these, we can easily imagine a complicated `switch` or set
 of `if`/`else` statements to capture the logic. But at base, we really
