@@ -54,6 +54,7 @@
 .point3 {background-color:#95c91e;}
 .point4 {background-color:#ffb902;}
 .point5 {background-color:#d32d93;}
+
 @media (max-width:875px) {
 	.year {
 		margin-left:2px;

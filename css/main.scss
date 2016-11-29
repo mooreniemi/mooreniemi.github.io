@@ -4,6 +4,22 @@
 @charset "utf-8";
 
 
+table {
+  border: 1px solid black;
+  margin: 10px;
+}
+
+th {
+  background-color: #D3D3D3;
+}
+
+th, td {
+  border-bottom: 1px solid #ddd;
+  border-right: 1px solid #ddd;
+  padding: 10px;
+  text-align: left;
+}
+
 
 // Our variables
 $base-font-family: "Raleway",Arial,sans-serif;
@@ -20,7 +36,7 @@ $brand-color:      #2a7ae2;
 $grey-color:       #828282;
 $grey-color-light: lighten($grey-color, 40%);
 $grey-color-dark:  darken($grey-color, 25%);
-$blue-color:	   #a6b1c5;
+$blue-color:     #a6b1c5;
 
 // Width of the content area
 $content-width:    800px;
@@ -38,17 +54,17 @@ $on-laptop:        800px;
 //     }
 // }
 @mixin media-query($device) {
-    @media screen and (max-width: $device) {
-        @content;
-    }
+  @media screen and (max-width: $device) {
+    @content;
+  }
 }
 
 
 
 // Import partials from `sass_dir` (defaults to `_sass`)
 @import
-        "base",
-        "layout",
-        "syntax-highlighting",
-        "minima"
+"base",
+"layout",
+"syntax-highlighting",
+"minima"
 ;
