@@ -41,20 +41,19 @@ But at base, we really have 2 dimensions of logic that are fully and
 independently enumerable into very small sets. We can actually put all
 these values in a table:
 
-| numberOfLiveNeighbors | livingCell | deadCell |
-|-----------------------|------------|----------|
-| 0                     | dead       | dead     |
-| 1                     | dead       | dead     |
-| 2                     | live       | dead     |
-| 3                     | live       | live     |
-| 4                     | dead       | dead     |
+| livingCell | deadCell |
+|------------|----------|
+| dead       | dead     |
+| dead       | dead     |
+| live       | dead     |
+| live       | live     |
+| dead       | dead     |
 
-
-One dimension, the outermost dimension (the header in our table), is
-whether a cell is alive or dead. If we think of a prototypical xy graph
-and x is the horizontal dimension, then the values of x are "livingCell"
-and "deadCell" or we could define them as integers like 0 and 1. We get
-this outer dimension from our ruleset:
+One dimension, our "outer" dimension, is whether a cell is alive or dead.
+If we think of a prototypical xy graph and x is the horizontal dimension,
+then the values of x are "livingCell" and "deadCell" or we
+could define them as integers like 0 and 1. We get this outer dimension
+from this portion of our ruleset:
 
 1. **If a dead cell** ...
 2. _If a live cell_ ...
@@ -63,6 +62,16 @@ this outer dimension from our ruleset:
 
 The other dimension (our "y" dimension or the row numbers of our table) is
 the number of live neighbors.
+
+| (numberOfLiveNeighbors) | livingCell | deadCell |
+|-------------------------|------------|----------|
+| 0                       | dead       | dead     |
+| 1                       | dead       | dead     |
+| 2                       | live       | dead     |
+| 3                       | live       | live     |
+| 4                       | dead       | dead     |
+
+This corresponds to this portion of our ruleset:
 
 1. ... exactly three live neighbours, ...
 (`== 3`)
@@ -73,8 +82,8 @@ the number of live neighbors.
 4. ... two or three live neighbours, ...
 (`== 2 || == 3`)
 
-These are both simple integers if we `clamp` the live neighbor count at
-the maximum relevant `n` (for our ruleset, 4).
+Both dimensions can be expressed as simple integers if we `clamp` the live
+neighbor count at the maximum relevant `n` (for our ruleset, 4).
 
 I'm going to work inside out and start with the inner dimensions dependent
 on live neighbor count. Here's how I grab that count, which is only
