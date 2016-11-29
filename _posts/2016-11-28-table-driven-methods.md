@@ -41,13 +41,14 @@ But at base, we really have 2 dimensions of logic that are fully and
 independently enumerable into very small sets. We can actually put all
 these values in a table:
 
-| livingCell | deadCell |
-|------------|----------|
-| dead       | dead     |
-| dead       | dead     |
-| live       | dead     |
-| live       | live     |
-| dead       | dead     |
+| numberOfLiveNeighbors | livingCell | deadCell |
+|-----------------------|------------|----------|
+| 0                     | dead       | dead     |
+| 1                     | dead       | dead     |
+| 2                     | live       | dead     |
+| 3                     | live       | live     |
+| 4                     | dead       | dead     |
+
 
 One dimension, the outermost dimension (the header in our table), is
 whether a cell is alive or dead. If we think of a prototypical xy graph
