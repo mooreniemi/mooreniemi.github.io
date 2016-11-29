@@ -139,8 +139,12 @@ roughly like so (didn't execute this):
 
 ```javascript
 // what we'll ultimately do to a cell depending on our conditional logic
-var deathFunc = function(cell) { // kill cell };
-var liveFunc = function(cell) { // birth/maintain cell };
+var deathFunc = function(cell) {
+  // kill cell
+};
+var liveFunc = function(cell) {
+  // birth/maintain cell
+};
 
 // our conditional logic encoded into Arrays
 var nextLivingState = [deathFunc, deathFunc, liveFunc, liveFunc, deathFunc];
