@@ -4,22 +4,22 @@
 @charset "utf-8";
 
 
-table {
-  border: 1px solid black;
-  margin: 10px;
-}
+.actual-table {
+  table {
+    margin: 10px;
+  }
 
-th {
-  background-color: #D3D3D3;
-}
+  th {
+    background-color: #D3D3D3;
+  }
 
-th, td {
-  border-bottom: 1px solid #ddd;
-  border-right: 1px solid #ddd;
-  padding: 10px;
-  text-align: left;
+  th, td {
+    border-bottom: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
 }
-
 
 // Our variables
 $base-font-family: "Raleway",Arial,sans-serif;
