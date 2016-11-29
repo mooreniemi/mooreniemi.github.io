@@ -1,7 +1,7 @@
 ---
 layout: post
 title: over the horizon of API development
-categories: web api
+categories: web apis
 ---
 At [APIStrat](http://boston2016.apistrat.com/schedule/) today I attended the "workshop"[^not] on [Open API Specification](https://github.com/OAI/OpenAPI-Specification). A somewhat off-hand remark by the final presenter struck me as especially important. Someone had asked whether the new [Links Object](https://github.com/OAI/OpenAPI-Specification/blob/OpenAPI.next/versions/3.0.md#links-object) could be used to implement hypermedia, and the presenter first said no but in subsequent comments admitted it was not impossible, just not a priority. (This seemed quite fair to me.) But in his disclaimers he said something I found remarkable, which was that hypermedia **is fundamentally at odds with an API specification**. This was probably the most interesting statement of the entire day for me.
 
