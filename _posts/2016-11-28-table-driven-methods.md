@@ -83,7 +83,8 @@ This corresponds to this portion of our ruleset:
 (`== 2 || == 3`)
 
 Both dimensions can be expressed as simple integers if we `clamp` the live
-neighbor count at the maximum relevant `n` (for our ruleset, 4).
+neighbor count at the minimum and maximum relevant `n`s (for our ruleset,
+0 and 4).
 
 I'm going to work inside out and start with the inner dimensions dependent
 on live neighbor count. Here's how I grab that count, which is only
