@@ -43,11 +43,7 @@ these values in a table:
 
 | livingCell | deadCell |
 |------------|----------|
-| dead       | dead     |
-| dead       | dead     |
-| live       | dead     |
-| live       | live     |
-| dead       | dead     |
+| ????       | ????     |
 
 One dimension, our "outer" dimension, is whether a cell is alive or dead.
 If we think of a prototypical xy graph and x is the horizontal dimension,
