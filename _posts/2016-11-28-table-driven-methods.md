@@ -39,17 +39,18 @@ additional statements within the liveness branch to codify the rest.
 
 But at base, we really have 2 dimensions of logic that are fully and
 independently enumerable into very small sets. We can actually put all
-these values in a table:
+these values in a table.
+
+One dimension, our "outer" dimension, is whether a cell is alive or dead.
+If we think of a prototypical xy graph and x is the horizontal dimension,
+then the values of x are "livingCell" and "deadCell" or we
+could define them as integers like 0 and 1.
 
 | livingCell | deadCell |
 |------------|----------|
 | ????       | ????     |
 
-One dimension, our "outer" dimension, is whether a cell is alive or dead.
-If we think of a prototypical xy graph and x is the horizontal dimension,
-then the values of x are "livingCell" and "deadCell" or we
-could define them as integers like 0 and 1. We get this outer dimension
-from this portion of our ruleset:
+We get this outer dimension from this portion of our ruleset:
 
 1. **If a dead cell** ...
 2. _If a live cell_ ...
