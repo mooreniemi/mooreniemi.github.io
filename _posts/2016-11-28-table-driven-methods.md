@@ -38,14 +38,48 @@ outer `if`/`else` for the liveness or deadness of a cell, and then some
 additional statements within the liveness branch to codify the rest.
 
 But at base, we really have 2 dimensions of logic that are fully and
-independently enumerable into very small sets. One dimension, the
-outermost dimension, is whether a cell is alive or dead. The other
-dimension is the number of live neighbors. These are both simple integers
-if we `clamp` the live neighbor count at the maximum relevant `n`.
+independently enumerable into very small sets. We can actually put all
+these values in a table:
+
+| livingCell | deadCell |
+|------------|----------|
+| dead       | dead     |
+| dead       | dead     |
+| live       | dead     |
+| live       | live     |
+| dead       | dead     |
+
+One dimension, the outermost dimension (the header in our table), is
+whether a cell is alive or dead. If we think of a prototypical xy graph
+and x is the horizontal dimension, then the values of x are "livingCell"
+and "deadCell" or we could define them as integers like 0 and 1. We get
+this outer dimension from our ruleset:
+
+1. **If a dead cell** ...
+2. _If a live cell_ ...
+3. _If a live cell_ ...
+4. _If a live cell_ ...
+
+The other dimension (our "y" dimension or the row numbers of our table) is
+the number of live neighbors.
+
+1. ... exactly three live neighbours, ...
+(`== 3`)
+2. ... less than two live neighbours, ...
+(`== 0 || == 1`)
+3. ... more than three live neighbours, ...
+(`== 4`)
+4. ... two or three live neighbours, ...
+(`== 2 || == 3`)
+
+These are both simple integers if we `clamp` the live neighbor count at
+the maximum relevant `n` (for our ruleset, 4).
 
 I'm going to work inside out and start with the inner dimensions dependent
-on live neighbor count. Here's how I grab that count, which isn't super
-important but is some context:
+on live neighbor count. Here's how I grab that count, which is only
+important because by
+[`clamp`](https://github.com/mooreniemi/life/blob/master/utils.js#L40),
+`numberOfLiveNeighbors` is guaranteed to be some value between 0 and 4.:
 
 ```javascript
 // get the liveness of every neighbor of the cell I care about
@@ -53,28 +87,30 @@ var neighborhood = getNeighbors(i).map(function(e) { return isLive(grid, e); });
 // filter them for only true values (for live cells)
 var numberOfLiveNeighbors = neighborhood.filter(utils.identity).length.clamp(0, 4);
 ```
-
-Again, by `clamp`, `numberOfLiveNeighbors` is guaranteed to be some value
-between 0 and 4.
-
 Using live neighbor count as our index key, we need to encode the
-conditions of the second dimension. For instance, one condition is that we
+conditions of the dimension. For instance, one condition is that we
 know a live cell with less than 2 neighbors will die, so the 0 and
-1 position of a **live** cell's potential states should both be `'dead'`:
+1 position of a live cell's potential states should both be `'dead'`:
 
 ```javascript
-// NOTE: 0 and 1 are valued 'dead', because of rule #2
+// 0 and 1 are valued 'dead', because of rule #2
 var nextLivingState = ['dead', 'dead', 'live', 'live', 'dead'];
+
+// coincidentally, so are 0 and 1 for a dead cell
+// all of the dead cell states are owing to rule #1
 var nextDeadState = ['dead', 'dead', 'dead', 'live', 'dead'];
 ```
 
 If we didn't have an additional dimension of whether the cell is alive or
 dead itself to begin with, we'd only need one of the two Arrays defined
-above, and could index directly into it. Given we can be alive or dead
-(encoded as 0 or 1), the outer dimension wrapping that inner secondary one
-maps dead states to 0 and live states to 1:
+above, and could index directly into it. Since cells can be alive or dead,
+we need to encode that too in another Array. The simplest thing to do is
+to map dead states to 0 and live states to 1 in the "outer" "y" dimension
+as I described above:
 
 ```javascript
+// nextPossibleState[0] <==> dead
+// nextPossibleState[1] <==> alive
 var nextPossibleState = [nextDeadState, nextLivingState];
 ```
 
@@ -89,8 +125,10 @@ var nextState = nextPossibleState[isLive(grid, i)][numberOfLiveNeighbors];
 
 Based on the `nextState` I calculate the new value of a cell on the next
 "turn" in the GOL, though if you wanted, there's no reason not to collapse
-this final step into the data structure we created. You could directly
-call a method based on where you index in to, roughly like so (didn't execute this):
+this final step into the data structure we created.
+
+To do so, you could directly call a method based on where you index in to,
+roughly like so (didn't execute this):
 
 ```javascript
 // what we'll ultimately do to a cell depending on our conditional logic
