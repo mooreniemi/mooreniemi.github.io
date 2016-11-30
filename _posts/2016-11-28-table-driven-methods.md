@@ -141,11 +141,11 @@ To do so, you could directly call a method based on where you index in to,
 ```javascript
 // what we'll ultimately do to a cell depending on our conditional logic
 function live(cell,i) {
-	cell.push(compass.positionFromId(i));
+  cell.push(compass.positionFromId(i));
 }
 
 function dead(cell) {
-	cell.length = 0;
+  cell.length = 0;
 }
 
 // our conditional logic encoded into Arrays
