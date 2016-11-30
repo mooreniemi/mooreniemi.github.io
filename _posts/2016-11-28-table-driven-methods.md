@@ -136,27 +136,28 @@ Based on the `nextState` I calculate the new value of a cell on the next
 this final step into the data structure we created.
 
 To do so, you could directly call a method based on where you index in to,
-roughly like so (didn't execute this):
+[like so](https://github.com/mooreniemi/life/blob/master/content.js#L120):
 
 ```javascript
 // what we'll ultimately do to a cell depending on our conditional logic
-var deathFunc = function(cell) {
-  // kill cell
-};
-var liveFunc = function(cell) {
-  // birth/maintain cell
-};
+function live(cell,i) {
+	cell.push(compass.positionFromId(i));
+}
+
+function dead(cell) {
+	cell.length = 0;
+}
 
 // our conditional logic encoded into Arrays
-var nextLivingState = [deathFunc, deathFunc, liveFunc, liveFunc, deathFunc];
-var nextDeadState = [deathFunc, deathFunc, deathFunc, liveFunc, deathFunc];
-var nextCellFunc = [nextDeadState, nextLivingState];
+var nextLivingState = [dead, dead, live, live, dead];
+var nextDeadState = [dead, dead, dead, live, dead];
+var nextPossibleState = [nextDeadState, nextLivingState];
 
 // indexing into our conditional logic based on cell state and neighbor state
-nextCellFunc[isLive(cell)][numberOfLiveNeighbors].call(cell);
+nextPossibleState[isLive(grid, i)][numberOfLiveNeighbors].call(null, cell, i);
 ```
 
 My [working code is
-here](https://github.com/mooreniemi/life/blob/master/content.js#L141).
+here](https://github.com/mooreniemi/life/blob/master/content.js#L96).
 It's nothing special, but it's a live example of how to make use of a TDM
 and I think it makes the code easier to read and understand.
