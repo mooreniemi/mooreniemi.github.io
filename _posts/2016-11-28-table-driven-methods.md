@@ -161,3 +161,20 @@ My [working code is
 here](https://github.com/mooreniemi/life/blob/master/content.js#L96).
 It's nothing special, but it's a live example of how to make use of a TDM
 and I think it makes the code easier to read and understand.
+
+Table Driven Methods are cool, so why not use them all the time
+everywhere? Well, here's a [performance comparison in
+Ruby](https://github.com/mooreniemi/experiments/blob/master/lib/tdm.rb):
+
+![TDM vs. If-Else performance graph](/images/tdm.gif)
+
+Table driven methods make use of Arrays, which are managed on the heap.
+While if and else may not read as nicely (to me) they have the advantage
+of being managed on the stack[^nick]. That can have performance benefits.
+It's not a major impact, as you see above, but it is a constant factor of
+some sort worse at least.
+
+My own rule of thumb is if the rules are more complicated than the data is
+large: go for a TDM.
+
+[^nick]: Hat tip to my colleague [Nick Thompson](http://nickwritesablog.com/) to humoring me, as always, in thinking through those tradeoffs.
