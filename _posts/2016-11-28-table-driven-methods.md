@@ -168,13 +168,26 @@ Ruby](https://github.com/mooreniemi/experiments/blob/master/lib/tdm.rb):
 
 ![TDM vs. If-Else performance graph](/images/tdm.gif)
 
-Table driven methods make use of Arrays, which are managed on the heap.
+But here is the _memory_ performance:
+
+```
+Calculating -------------------------------------
+                 TDM     3.296k memsize (     0.000  retained)
+                        12.000  objects (     0.000  retained)
+                         0.000  strings (     0.000  retained)
+             If-Else     3.072k memsize (     0.000  retained)
+                         9.000  objects (     0.000  retained)
+                         0.000  strings (     0.000  retained)
+
+Comparison:
+             If-Else:       3072 allocated
+                 TDM:       3296 allocated - 1.07x more
+```
+
+Table driven methods make use of Arrays, which are managed (allocated) on the heap.
 While if and else may not read as nicely (to me) they have the advantage
 of being managed on the stack[^nick]. That can have performance benefits.
-It's not a major impact, as you see above, but it is a constant factor of
-some sort worse at least.
 
-My own rule of thumb is if the rules are more complicated than the data is
-large: go for a TDM.
+In the majority of cases, I think this allocation difference is insignificant, but if you were suddenly using TDMs for every single call, that could add up.
 
 [^nick]: Hat tip to my colleague [Nick Thompson](http://nickwritesablog.com/) to humoring me, as always, in thinking through those tradeoffs.
