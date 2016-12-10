@@ -158,11 +158,11 @@ nextPossibleState[isLive(grid, i)][numberOfLiveNeighbors].call(null, cell, i);
 ```
 
 My [working code is
-here](https://github.com/mooreniemi/life/blob/master/content.js#L96).
-It's nothing special, but it's a live example of how to make use of a TDM
-and I think it makes the code easier to read and understand. They also can
-perform a little better, (like, trivially better in my tests anyway)
-here's a [performance comparison in
+here](https://github.com/mooreniemi/life/blob/master/content.js#L96). It's
+nothing special, but it's a live example of how to make use of a TDM.
+I think in the right place, a TDM makes the code easier to read and
+understand. They also can perform a little better, (like, trivially better
+in my tests anyway) here's a [performance comparison in
 Ruby](https://github.com/mooreniemi/experiments/blob/master/lib/tdm.rb):
 
 ![TDM vs. If-Else performance graph](/images/tdm.gif)
