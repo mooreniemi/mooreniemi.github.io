@@ -161,14 +161,15 @@ My [working code is
 here](https://github.com/mooreniemi/life/blob/master/content.js#L96). It's
 nothing special, but it's a live example of how to make use of a TDM.
 I think in the right place, a TDM makes the code easier to read and
-understand. They also can perform a little better, (like, trivially better
-in my tests anyway) here's a [performance comparison in
+understand. They also can perform a little better; like, trivially better
+in my tests anyway. Here's a [performance comparison in
 Ruby](https://github.com/mooreniemi/experiments/blob/master/lib/tdm.rb):
 
 ![TDM vs. If-Else performance graph](/images/tdm.gif)
 
 Table Driven Methods are cool, so why not use them all the time
-everywhere? Well, here is the _memory_ performance:
+everywhere? Well, here is the _memory_ performance of my initial, naive
+implementation in Ruby:
 
 ```
 Calculating -------------------------------------
@@ -190,17 +191,31 @@ nicely (to me) they have the advantage of being managed on the
 stack[^nick]. That can have performance benefits not reflected directly in
 execution speed.
 
-In the majority of cases, I think this allocation difference is not
-a deal-breaker (though not insignificant at a 39% increase in my test),
-but if you were suddenly using TDMs for every single call, that could add
-up. Imagine a 39% memory tax on every single call: not a good look.
+I think this allocation difference is not a deal-breaker (though not
+insignificant at a 39% increase in my test), but if you were suddenly
+using TDMs for every single call, that could add up. Imagine a 39% memory
+tax on every single call: not a good look.
 
-On consideration, I guess my rule of thumb would be to use a TDM only when
-the ruleset is complicated, and it isn't any easier to simplify
-[statements into
-expressions](http://mooreniemi.github.io/2016/10/04/refactoring-away-from-statements-in-ruby.html).
-That said, I don't reach for TDMs super often, and the absolute value of
-the memory increase is so small, that I probably won't worry too much,
-anyway.
+That said, in Ruby at least, this allocation difference is unnecessary.
+There's no reason to put those Arrays on the heap. If we rewrite our TDM
+to make all the Arrays frozen constants, check out our new memory stats (I
+also made all the procs constants, for both methods):
+
+```
+Calculating -------------------------------------
+                 tdm   280.000  memsize (     0.000  retained)
+                         6.000  objects (     0.000  retained)
+                         0.000  strings (     0.000  retained)
+             if_else   280.000  memsize (     0.000  retained)
+                         6.000  objects (     0.000  retained)
+                         0.000  strings (     0.000  retained)
+
+Comparison:
+                 tdm:        280 allocated
+             if_else:        280 allocated - same
+```
+
+Neat! Now they're the same. No cost to using a TDM over a switch
+statement, a tiny bit better performance, and a readability gain. 😎
 
 [^nick]: Hat tip to my colleague [Nick Thompson](http://nickwritesablog.com/) to humoring me, as always, in thinking through those tradeoffs.
