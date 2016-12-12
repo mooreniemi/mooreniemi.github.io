@@ -237,7 +237,48 @@ Calculating -------------------------------------
                          0.000  strings (     0.000  retained)
 ```
 
-So in sum, my advice for best performance of TDMs is make sure to allocate your
-"table" _outside_ of the method itself.
+This does suggest one final, perhaps a bit goofy, improvement you can
+make: use Strings instead of Arrays!
+
+```
+# procs that match chars
+D = proc {|x| p "#{x} is dead".freeze }
+L = proc {|x| p "#{x} is live".freeze }
+
+# dead states, then live states
+next_state_string = "DDDLDDDLLD".freeze
+
+# our main index into the next state
+number_of_live_neighbors = 3 # clamped at 4
+
+# how many states do we need to move in if we're alive?
+LIVENESS_OFFSET = 4
+
+chosen_proc_name = next_state_string[number_of_live_neighbors + LIVENESS_OFFSET]
+
+Object.const_get(chosen_proc_name).call(1)
+# => "1 is live"
+```
+
+[Here's the memory performance difference](https://github.com/mooreniemi/experiments/blob/master/lib/sdm.rb) between the TDM and a "SDM" (String Driven Method):
+
+```
+Calculating -------------------------------------
+"1 is live"
+                 SDM   561.000  memsize (     0.000  retained)
+                         6.000  objects (     0.000  retained)
+                         4.000  strings (     0.000  retained)
+"1 is live"
+                 TDM     1.121k memsize (     0.000  retained)
+                        18.000  objects (     0.000  retained)
+                         5.000  strings (     0.000  retained)
+
+Comparison:
+                 SDM:        561 allocated
+                 TDM:       1121 allocated - 2.00x more
+```
+
+To my mind, it's sufficient to make sure to allocate your
+"table" _outside_ of the method itself. But it's fun to see the alternative.
 
 [^nick]: Hat tip to my colleague [Nick Thompson](http://nickwritesablog.com/) to humoring me, as always, in thinking through those tradeoffs.
