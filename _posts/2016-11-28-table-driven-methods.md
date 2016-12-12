@@ -269,13 +269,13 @@ Calculating -------------------------------------
                          6.000  objects (     0.000  retained)
                          4.000  strings (     0.000  retained)
 "1 is live"
-                 TDM     1.121k memsize (     0.000  retained)
-                        18.000  objects (     0.000  retained)
-                         5.000  strings (     0.000  retained)
+                 TDM   721.000  memsize (     0.000  retained)
+                         8.000  objects (     0.000  retained)
+                         3.000  strings (     0.000  retained)
 
 Comparison:
                  SDM:        561 allocated
-                 TDM:       1121 allocated - 2.00x more
+                 TDM:        721 allocated - 1.29x more
 ```
 
 To my mind, it's sufficient to make sure to allocate your
