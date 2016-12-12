@@ -240,7 +240,7 @@ Calculating -------------------------------------
 This does suggest one final, perhaps a bit goofy, improvement you can
 make: use Strings instead of Arrays!
 
-```
+```ruby
 # procs that match chars
 D = proc {|x| p "#{x} is dead".freeze }
 L = proc {|x| p "#{x} is live".freeze }
