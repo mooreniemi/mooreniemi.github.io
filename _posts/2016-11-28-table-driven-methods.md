@@ -196,10 +196,9 @@ insignificant at a 39% increase in my test), but if you were suddenly
 using TDMs for every single call, that could add up. Imagine a 39% memory
 tax on every single call: not a good look.
 
-That said, in Ruby at least, this allocation difference is unnecessary.
-There's no reason to put those Arrays on the heap. If we rewrite our TDM
-to make all the Arrays frozen constants, check out our new memory stats (I
-also made all the procs constants, for both methods):
+We can definitely do better than paying that tax on _every_ call. Here's
+the TDM when I move those Arrays out as frozen constants (I also moved the
+procs out for both methods, to reduce noise):
 
 ```
 Calculating -------------------------------------
@@ -215,7 +214,30 @@ Comparison:
              if_else:        280 allocated - same
 ```
 
-Neat! Now they're the same. No cost to using a TDM over a switch
-statement, a tiny bit better performance, and a readability gain. 😎
+We are still allocating the Arrays, but only once, rather than on every
+call. That's _better_, but it still cost us when
+we loaded our program. `freeze` can't save us there. This is because Ruby's freeze
+behavior is different for String and Array:
+
+```
+Benchmark.memory {|x| x.report { "foo".freeze } }
+Calculating -------------------------------------
+                         0.000  memsize (     0.000  retained)
+                         0.000  objects (     0.000  retained)
+                         0.000  strings (     0.000  retained)
+```
+
+For String, no object was allocated, but for Array, it will be:
+
+```
+Benchmark.memory {|x| x.report { [1,2,3].freeze } }
+Calculating -------------------------------------
+                        40.000  memsize (     0.000  retained)
+                         1.000  objects (     0.000  retained)
+                         0.000  strings (     0.000  retained)
+```
+
+So in sum, my advice for best performance of TDMs is make sure to allocate your
+"table" _outside_ of the method itself.
 
 [^nick]: Hat tip to my colleague [Nick Thompson](http://nickwritesablog.com/) to humoring me, as always, in thinking through those tradeoffs.
