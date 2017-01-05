@@ -1,7 +1,7 @@
 ---
 layout: post
 title: when is an API better or worse?
-category: apis
+category: apis web rest
 ---
 
 If an API is not simply a data persistence surface or a list of functions,
