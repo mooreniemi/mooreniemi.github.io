@@ -129,7 +129,7 @@ edges that at this state in the API (viewing an item) it takes 2 clicks to
 reach our revenue target! Based on this, we might decide to implement
 a featured product on our homepage.
 
-We can also get some nice benefits:
+We get some nice benefits from this modeling strategy:
 
 * We can easily detect "dead" unreachable nodes.
 * We don't have to write a separate specification for our API. Our API
