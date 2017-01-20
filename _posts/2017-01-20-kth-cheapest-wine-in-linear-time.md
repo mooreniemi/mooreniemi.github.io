@@ -18,7 +18,7 @@ function cheat(array, k) {
 }
 ```
 
-This works, but is O(n log n). We can do better, compare the above `cheat` to a `find` I implemented:
+This works, but is O(n log n). We can do better; compare the above `cheat` to a `find` I implemented:
 
 ![](/images/kth-element.png)
 
