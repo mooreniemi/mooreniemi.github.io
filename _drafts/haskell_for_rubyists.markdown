@@ -102,7 +102,16 @@ Or doing some chicanery[^credit]:
 => [1, 2, 3]
 ```
 
-Without that `instance_eval` we can't reuse our block as a Proc. (We need a generic variable name like `self` to target our receiver, across different receivers with different variable names.) So, `each` could almost maintain structure, but requires mutation to be useful. Meanwhile, `map` doesn't guarantee structure but doesn't necessitate mutating our original object. That means `map` can be used more easily with blocks we extracted into Procs, while `each` can't:
+Or using our Hash example:
+
+```ruby
+# if we want to return self instead of the aggregated values
+# we have to hack map using instance_eval
+h.instance_eval { map {|k, v| self[k] = v.upcase } ; self }
+# => {:foo=>"BAR", :biz=>"BAZ"}
+```
+
+Without that `instance_eval` we can't reuse our block as a Proc; we need a generic variable name like `self` to target our receiver, across different receivers with different variable names. So, `each` could almost maintain structure, but requires mutation to be useful. Meanwhile, `map` doesn't guarantee structure but doesn't necessitate mutating our original object. That means `map` can be used more easily with blocks we extracted into Procs, while `each` can't:
 
 ```ruby
 double = proc {|a| a * 2 }
