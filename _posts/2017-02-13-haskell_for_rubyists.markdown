@@ -10,7 +10,7 @@ But Ruby frustrates me sometimes, because in no particular order: it has some fu
 
 How does Haskell compare on these complaints? Well, it is definitely a truly functional programming language, it has an expressive type system, and it has import/export. For concurrency primitives, Haskell ships with thread support I don't see as particularly different from Ruby's. But in terms of parallelism, [Haskell can do multicore](https://wiki.haskell.org/Haskell_for_multicores) while Ruby cannot, so it's no contest there.
 
-Although Haskell is infamous for its monads, I actually want to just talk about [Functors](https://wiki.haskell.org/Typeclassopedia#Functor) to show a basic building block in Haskell that we really lack in Ruby, and some of the weirdness that results from that absence. Before your eyes glaze over, let me dangle a Ruby term in front of you: [Enumerable](http://ruby-doc.org/core-2.4.0/Enumerable.html).
+Although Haskell is infamous for its Monads, I actually want to just talk about [Functors](https://wiki.haskell.org/Typeclassopedia#Functor) to show a basic building block in Haskell that we really lack in Ruby, and some of the weirdness that results from that absence. Before your eyes glaze over, let me dangle a Ruby term in front of you: [Enumerable](http://ruby-doc.org/core-2.4.0/Enumerable.html).
 
 In Ruby, we iterate over collections with `each` (or `map` or a bunch of other methods). `each` is from Enumerable:
 
