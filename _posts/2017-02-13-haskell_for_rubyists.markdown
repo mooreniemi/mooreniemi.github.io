@@ -16,7 +16,7 @@ In Ruby, we iterate over collections with `each` (or `map` or a bunch of other m
 
 > The class must provide a method each, which yields successive members of the collection.
 
-In Ruby, `each` returns the original Array, while `map` returns the aggregation of return values of the block execution. Both of the main collection types (Hash and Array) in Ruby have an `each` and `map`. But in my experience, the duck typing of Ruby can lead to subtle, annoying errors when working with Hash, because 1. a unary block (you fail to destructure via `|k,v|`), via duck-typing, produces Arrays, and 2. because `map` _always returns an Array_!
+In Ruby, `each` returns the original receiver type, while `map` returns the aggregation of return values of the block execution. Both of the main collection types (Hash and Array) in Ruby have an `each` and `map`. But in my experience, the duck typing of Ruby can lead to subtle, annoying errors when working with Hash, because 1. a unary block (you fail to destructure via `|k,v|`), via duck-typing, produces Arrays in your block, and 2. because `map` _always returns an Array_!
 
 Let's say I want to iterate over a Hash and change its values somehow.
 
