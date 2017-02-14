@@ -52,7 +52,7 @@ h.reduce({}) {|memo, (k,v)| memo[k] = v.upcase ; memo }
 => {:foo=>"BAR", :biz=>"BAZ"}
 
 # or use merge! which returns the full hash on addition of a new pair
-# thought it performs somewhat worse (30% in my tests) and make sure
+# though it performs somewhat worse (30% in my tests) and make sure
 # you dont use merge -- it runs in quadratic time!
 h.reduce(h) {|memo, (k,v)| memo.merge!({k => v.upcase}) }
 => {:foo=>"BAR", :biz=>"BAZ"}
