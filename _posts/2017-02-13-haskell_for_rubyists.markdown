@@ -158,7 +158,7 @@ fmap id = id
 fmap (g . h) = (fmap g) . (fmap h)
 ```
 
-But because Ruby's `map` doesn't guarantee that structure is maintained, Ruby's Enumerable classes aren't Functors. With some work, we can make Hash's `map` structure preserving and give ourselves a lawful `fmap`:
+But because Ruby's `map` doesn't enforce that structure is maintained, not all Enumerable classes are Functors. (Only Arrays.) With some work, we can make Hash's `map` structure preserving and give ourselves a lawful `fmap`:
 
 ```ruby
 # note merge! is less performant than []=, but more readable imho
@@ -179,7 +179,7 @@ h.fmap(&(double * triple))
 => {:foo=>"barbarbarbarbarbar", :biz=>"bazbazbazbazbazbaz"}
 ```
 
-So why _does_ Ruby's map do what it does? Why implement Hash's `map` to operate on values, like `fmap`, and then _also_ collect just those values into an Array? Seems very weird to me, but I only realized it having worked with a language like Haskell that exposes and specifies its abstractions in its type system.
+So why _does_ Ruby's map do what it does? Why implement Hash's `map` to operate on values, like `fmap`, and then _also_ collect just those values into an Array? Seems very weird to me, but I only realized it having worked with a language like Haskell that exposes and specifies its abstractions in its type system. How does Haskell organize code such that you can be sure any collection (except Set) is a Functor? Let's tackle that in another post, but the term you should google is "type class".
 
 [^ruby-async]: A lot of [extensions](https://github.com/ruby-concurrency/concurrent-ruby) exist, and Ruby 3 is going to have [guilds](http://olivierlacan.com/posts/concurrency-in-ruby-3-with-guilds/) to handle concurrency in core.
 [^ruby-import]: You can get these semantics from the [cargo](https://github.com/soveran/cargo) gem, which I have never seen used in a production project yet, sadly.
