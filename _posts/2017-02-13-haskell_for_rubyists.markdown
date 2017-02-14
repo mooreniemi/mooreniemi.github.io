@@ -1,6 +1,6 @@
 ---
 layout: post
-title: "haskell for rubyists"
+title: "haskell for rubyists: functors"
 categories: programming ruby haskell
 ---
 
