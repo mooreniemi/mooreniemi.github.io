@@ -42,7 +42,7 @@ averages those clusters, and organizes the average (sometimes called
 well. Clustering offers a trade-off: faster search, but lower recall,
 since we won't visit every cluster on every search.
 
-![](images/lex-ann.png)
+![](/images/lex-ann.png)
 
 When we think about using these two different data structures for scoring,
 we can see that in the scenario with embeddings, although we have
@@ -58,7 +58,7 @@ we could even use it per each red box (the cluster members). Or if we have
 no clusters at all, we can use it across all embeddings. In practice,
 that's usually only done for very "small" sets of embeddings.
 
-![](images/lex-ann-2.png)
+![](/images/lex-ann-2.png)
 
 
 ### steep climbing: how do we make ann faster?
