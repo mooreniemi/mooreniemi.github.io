@@ -116,7 +116,7 @@ naming, the graph types can be categorized with a clustering coefficient
 k-means clustering the data points may not be literally connected to each
 other in a graph):
 
-$$C(v) = { e(v) \over deg(v)(deg(v)-1)/2}$$
+$$C(v)={e(v) \over deg(v)(deg(v)-1)/2}$$
 
 > where `e(v)` denotes the number of edges between the vertices in the
 > `v`’s neighbourhood. (The degree [`deg`] of a vertex is defined as the
