@@ -2,6 +2,7 @@
 layout: post
 title: scenic tour of hnsw
 date: 2022-12-04 22:21 -0500
+usemathjax: true
 ---
 
 [WIP Post - 12/18/22] HNSW, which stands for "hierarchical navigable small
