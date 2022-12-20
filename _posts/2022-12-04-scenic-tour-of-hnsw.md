@@ -12,8 +12,19 @@ one with a name I already knew. It was, in a very real sense, the first
 academic hike I've taken through literature. Because I was not formally
 educated in computer science, I was needlessly intimidated by this kind of
 research for too long. I hope these informal notes encourage others to try
-a hike of their own. (If you do, email me your scene tour, I want to read
-it!)
+a hike of their own. (If you do, email me your "scenic tour," I want to
+read it!)
+
+### the structure of this tour
+
+If you're familiar with the terrain, you should feel free to skip to
+wherever is new for you.
+
+I start with inverted indices to ground and contrast approximate nearest
+neighbors search.
+
+Then I work the name "HNSW" backwards, moving from 1999 through to 2016
+when the main paper is published.
 
 ### where i come from: inverted indices
 
@@ -111,7 +122,7 @@ the reverse chronology of the concepts. Since graphs go back to 1736,
 we'll skip ahead to the 90s and start with "small world," just pausing to
 note the features of graphs needed to understand.
 
-#### in the sea first: concrete origins of this problem
+#### just a glancing view: the concrete origins of this problem
 
 Part of what's fun across these papers, which I only touch on lightly here
 and not in the rest of this tour, is that many of them refer to a real
@@ -188,18 +199,24 @@ Because they can parameterize probability p between 0 for regular and
 a continuous space where there's a meaningful "between" between.
 
 That parameterization can then allow you to graph the clustering
-coefficient and path length, too:
+coefficient (`C(p)`) and path length (`L(p)`), and their relationship,
+too:
 
 ![](/images/c_v_l.png)
+
+I always love seeing a relatively simple model of key trade-off. Here it's
+the trade-off between clustering and path length.
 
 #### 2/3rds of the way up, navigable
 
 Before we discuss "navigable" directly, first let's stop at a fun "cabin"
-on our climb: P2P networks. With peer-to-peer networks, definitionally, we
-need decentralized search. With decentralization, greedy approaches are
-great because, implicitly, they're using _local_ ("who are my immediate
-peers") not global ("who are all the possible peers") information --
-centralization requires global information. It also means:
+on our climb: P2P networks.
+
+With peer-to-peer networks, definitionally, we need decentralized search.
+With decentralization, greedy approaches are great because, implicitly,
+they're using _local_ ("who are my immediate peers") not global ("who are
+all the possible peers") information -- whereas centralization requires
+global information. It also means:
 
 > if one had full global knowledge of the local and long-range contacts of
 > all nodes in the network, the shortest chain between two nodes could be
@@ -229,9 +246,29 @@ properties to nearest neighbor search with the note:
 > unknown.
 
 Funny enough, the word "greedy" doesn't even appear in his paper. And
-neither does navigable.
+neither does "navigable", only "navigation." But that summer, Kleinberg
+goes on to write:
 
-TK - where does navigable come in as a term for the first time?
+2000: ["Navigation in a small
+world"](https://www.nature.com/articles/35022643)
+
+Where he says directly,
+
+> These results indicate that efficient navigability is a fundamental
+> property of only some small-world structures.
+
+In other words, he defines "navigability" as when a "decentralized
+algorithm can achieve a delivery time [of messages across the network]
+bounded by any polynomial in logN."
+
+He's himself using single $$\alpha$$ parameter for his model, which is
+again a probability like the `p` Strogatz used above.
+
+> Long-range connections are added to a two-dimensional lattice controlled
+> by a clustering exponent, $$\alpha$$, that determines the probability of
+> a connection between two nodes as a function of their lattice distance.
+
+He proved for a 2-d lattice $$\alpha=2$$, and for d, $$\alpha=d$$.
 
 2007: ["Peer to peer multidimensional overlays: approximating complex
 structures"](https://hal.inria.fr/inria-00164667/file/RR-6248.pdf)
