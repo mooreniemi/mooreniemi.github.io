@@ -1,6 +1,6 @@
 ---
 layout: post
-title: scenic tour of hnsw
+title: a (very) scenic tour of hnsw
 date: 2022-12-04 22:21 -0500
 usemathjax: true
 toc: true
@@ -11,8 +11,8 @@ world" (graphs), is one of the first data structures for which I read not
 just its paper but the trail of papers backward in time until I arrived at
 one with a name I already knew. It was, in a very real sense, the first
 academic hike I've taken through literature. Because I was not formally
-educated in computer science, I was needlessly intimidated by this kind of
-research for too long. I hope these informal notes encourage others to try
+educated in math or computer science, I was intimidated by this kind of
+reading for too long. I hope these informal notes encourage others to try
 a hike of their own. (If you do, email me your "scenic tour," I want to
 read it!)
 
@@ -24,7 +24,7 @@ wherever is new for you.
 I start with inverted indices to ground and contrast approximate nearest
 neighbors search.
 
-Then I work the name "HNSW" backwards, moving from 1999 through to 2016
+Then I work the name "HNSW" backwards, moving from 1998 through to 2016
 when the main paper is published.
 
 ### where i come from: inverted indices
@@ -76,12 +76,12 @@ each of the clusters.
 When we think about using a clustered nearest neighbors index versus an
 inverted index for scoring scoring, we can see that in the scenario with
 embeddings, although we have something "like" a dictionary, we have an
-added step because we don't truly have the O(1) key lookups. With an
-inverted index, as soon as we have tokenized "cats and dogs" to ["cat",
-"dog"] we can use the tokens as keys directly to the lists of document
-values, which are called posting lists. With clustered embeddings, we
-first rank the cluster prototypes, and only then, for the top clusters, we
-rank their members.
+added step because we don't truly have the $$O(1)$$ key lookups. With an
+inverted index, as soon as we have tokenized `"cats and dogs"` to
+`["cat", "dog"]` we can use the tokens as keys directly to the lists of
+document values, which are called posting lists. With clustered
+embeddings, we first rank the cluster prototypes, and only then, for the
+top clusters, we rank their members.
 
 ![](/images/lex-ann-2.png)
 
@@ -123,7 +123,7 @@ the reverse chronology of the concepts. Since graphs go back to 1736,
 we'll skip ahead to the 90s and start with "small world," just pausing to
 note the features of graphs needed to understand.
 
-#### just a glancing view: the concrete origins of this problem
+### just a glancing view: the concrete origins of this problem
 
 Part of what's fun across these papers, which I only touch on lightly here
 and not in the rest of this tour, is that many of them refer to a real
@@ -136,7 +136,7 @@ information (who they knew directly) were able to get a message through
 across a "global" space by a relatively short path a non-negligible amount
 of the time?
 
-#### graphs, at sea level
+### graphs, at sea level
 
 As a simplification, we'll put graphs on a spectrum. On one end, we have
 random graphs. On the other end, regular graphs. Beyond the intuitive
@@ -144,14 +144,14 @@ naming, the graph types can be categorized with a clustering coefficient:
 
 $$C(v)={e(v) \over deg(v)(deg(v)-1)/2}$$
 
-> where `e(v)` denotes the number of edges between the vertices in the
-> `v`’s neighbourhood. (The degree [`deg`] of a vertex is defined as the
-> number of vertexes in its neighbourhood.)
+> where $$e(v)$$ denotes the number of edges between the vertices in the
+> $$v$$’s neighbourhood. (The degree [$$deg(v)$$] of a vertex is defined
+> as the number of vertexes in its neighbourhood.)
 
 In other words, the clustering coefficient is the number of edges of
 a vertex divided roughly by the number of vertices immediately connected
-to it (ie. `v`'s neighborhood). If most of the things connected to you are
-near you, you're highly clustered. Regular graphs have this property,
+to it (ie. $$v$$'s neighborhood). If most of the things connected to you
+are near you, you're highly clustered. Regular graphs have this property,
 while random graphs do not. But at the same time, a regular graph has
 a high "diameter" (and a random graph low) because the maximum number of
 edges in the shortest path connecting the vertices for any vertex is high
@@ -162,7 +162,7 @@ edges in the shortest path connecting the vertices for any vertex is high
 A classic math question, given _this_ and _that_, is there something _in
 between_ in a precise and meaningful way? Yes! The small world graph!
 
-#### 1/3rd of the way up, the "small world"
+### 1/3rd of the way up, the "small world"
 
 ![](/images/small_world.png)
 
@@ -174,8 +174,7 @@ Strogatz](https://podcasts.apple.com/us/podcast/the-joy-of-x/id1495067186)
 worked on this paper since I've read some of his books and listened to his
 podcast. It's a bit like seeing a celebrity in your local coffee shop.
 
-1998: ["Collective dynamics of ‘small-world’
-networks"](https://www.nature.com/articles/30918)
+#### 1998: ["Collective dynamics of ‘small-world’ networks"](https://www.nature.com/articles/30918)
 
 > ...these systems can be highly clustered, like regular lattices, yet
 > have small characteristic path lengths, like random graphs.
@@ -191,16 +190,16 @@ properties:
 
 How? Simply by "rewiring" some edges at random! More formally:
 
-> With probability p, we reconnect this edge to a vertex chosen uniformly
-> at random over the entire ring, with duplicate edges forbidden;
-> otherwise we leave the edge in place.
+> With probability $$p$$, we reconnect this edge to a vertex chosen
+> uniformly at random over the entire ring, with duplicate edges
+> forbidden; otherwise we leave the edge in place.
 
-Because they can parameterize probability p between 0 for regular and
+Because they can parameterize probability $$p$$ between 0 for regular and
 1 for random, they've found a way to make _this_ or _that_ into
 a continuous space where there's a meaningful "between" between.
 
 That parameterization can then allow you to graph the clustering
-coefficient (`C(p)`) and path length (`L(p)`), and their relationship,
+coefficient ($$C(p)$$) and path length ($$L(p)$$), and their relationship,
 too:
 
 ![](/images/c_v_l.png)
@@ -208,7 +207,7 @@ too:
 I always love seeing a relatively simple model of key trade-off. Here it's
 the trade-off between clustering and path length.
 
-#### 2/3rds of the way up, navigable
+### 2/3rds of the way up, navigable
 
 Before we discuss "navigable" directly, first let's stop at a fun "cabin"
 on our climb: P2P networks.
@@ -223,8 +222,7 @@ global information. It also means:
 > all nodes in the network, the shortest chain between two nodes could be
 > computed simply by breadth-first search.
 
-2000: ["The Small-World Phenomenon: An Algorithmic
-Perspective"](https://www.stat.berkeley.edu/~aldous/Networks/swn-1.pdf)
+#### 2000 (May): ["The Small-World Phenomenon: An Algorithmic Perspective"](https://www.stat.berkeley.edu/~aldous/Networks/swn-1.pdf)
 
 > Although recently proposed network models are rich in short paths, we
 > prove that no decentralized algorithm, operating with local information
@@ -250,8 +248,7 @@ Funny enough, the word "greedy" doesn't even appear in his paper. And
 neither does "navigable", only "navigation." But that summer, Kleinberg
 goes on to write:
 
-2000: ["Navigation in a small
-world"](https://www.nature.com/articles/35022643)
+#### 2000 (August): ["Navigation in a small world"](https://www.nature.com/articles/35022643)
 
 Where he says directly,
 
@@ -263,7 +260,7 @@ algorithm can achieve a delivery time [of messages across the network]
 bounded by any polynomial in logN."
 
 He's himself using single $$\alpha$$ parameter for his model, which is
-again a probability like the `p` Strogatz used above.
+again a probability like the $$p$$ Strogatz used above.
 
 > Long-range connections are added to a two-dimensional lattice controlled
 > by a clustering exponent, $$\alpha$$, that determines the probability of
@@ -272,8 +269,7 @@ again a probability like the `p` Strogatz used above.
 He proved for a 2 dimensional lattice $$\alpha=2$$, and for d dimensional,
 $$\alpha=d$$.
 
-2007: ["Peer to peer multidimensional overlays: approximating complex
-structures"](https://hal.inria.fr/inria-00164667/file/RR-6248.pdf)
+#### 2007: ["Peer to peer multidimensional overlays: approximating complex structures"](https://hal.inria.fr/inria-00164667/file/RR-6248.pdf)
 
 > In this paper we present the design, analysis and evaluation of RayNet,
 > a loosely structured Voronoï-based overlay network. RayNet organizes
@@ -286,28 +282,24 @@ structures"](https://hal.inria.fr/inria-00164667/file/RR-6248.pdf)
 > shortcuts, long range neighbours, implemented using an existing
 > Kleinberg-like peer sampling.
 
-2011: ["Approximate Nearest Neighbor Search Small World
-Approach"](https://www.iiis.org/CDs2011/CD2011IDI/ICTA_2011/PapersPdf/CT175ON.pdf)
+#### 2011: ["Approximate Nearest Neighbor Search Small World Approach"](https://www.iiis.org/CDs2011/CD2011IDI/ICTA_2011/PapersPdf/CT175ON.pdf)
 
 
-2013: ["Approximate nearest neighbor algorithm based on navigable small world
-graphs"](https://publications.hse.ru/pubs/share/folder/x5p6h7thif/128296059.pdf)
+#### 2013: ["Approximate nearest neighbor algorithm based on navigable small world graphs"](https://publications.hse.ru/pubs/share/folder/x5p6h7thif/128296059.pdf)
 
 > The navigable small world is created simply by keeping old Delaunay
 > graph approximation links produced at the start of construction.
 
-2016: ["Growing Homophilic Networks Are Natural Navigable Small
-Worlds"](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0158162)
+#### 2016: ["Growing Homophilic Networks Are Natural Navigable Small Worlds"](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0158162)
 
 > Navigability, an ability to find a logarithmically short path between
 > elements using only local information...
 
-#### the summit: adding hierarchy
+### the summit: adding hierarchy
 
-2016: ["Efficient and robust approximate nearest neighbor search using
-Hierarchical Navigable Small World
-graphs"](https://arxiv.org/abs/1603.09320) was initially published in
-2016, with revisions up to 2018.
+#### 2016: ["Efficient and robust approximate nearest neighbor search using Hierarchical Navigable Small World graphs"](https://arxiv.org/abs/1603.09320)
+
+(Note: initially published in 2016, with revisions up to 2018.)
 
 > Hierarchical NSW incrementally builds a multi-layer structure consisting
 > from hierarchical set of proximity graphs (layers) for nested subsets of
