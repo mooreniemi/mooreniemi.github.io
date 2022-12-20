@@ -5,27 +5,32 @@ date: 2022-12-04 22:21 -0500
 usemathjax: true
 ---
 
-[WIP Post - 12/18/22] HNSW, which stands for "hierarchical navigable small
+[WIP Post - 12/19/22] HNSW, which stands for "hierarchical navigable small
 world" (graphs), is one of the first data structures for which I read not
 just its paper but the trail of papers backward in time until I arrived at
-one with a name I already knew. I really enjoyed this tour, and so I'd
-like to share it with you as I walked it.
+one with a name I already knew. It was, in a very real sense, the first
+academic hike I've taken through literature. Because I was not formally
+educated in computer science, I was needlessly intimidated by this kind of
+research for too long. I hope these informal notes encourage others to try
+a hike of their own. (If you do, email me your scene tour, I want to read
+it!)
 
 ### where i come from: inverted indices
 
 I didn't start at zero when approaching the HNSW data structure. My
-background meant I was quite familiar with inverted indices for search. So
-let's start there as the initial setting. In "lexical" or "sparse" search,
-documents are tokenized into terms and each term is a key in a dictionary
-in which we keep some information about the term's importance in the
-document. Historically, this information was used to calculate
+background meant I was quite familiar with inverted indices for search.
+
+So let's start there as the initial setting. In "lexical" or "sparse"
+search, documents are tokenized into terms and each term is a key in
+a dictionary in which we keep some information about the term's importance
+in the document. Historically, this information was used to calculate
 [tf-idf](https://en.wikipedia.org/wiki/Tf%E2%80%93idf) or
 [bm25](https://en.wikipedia.org/wiki/Okapi_BM25) ranking functions via
 statistics of the underlying corpus, but it can also be importance
 information calculated by a deep neural network, as is done in [deep
 impact](https://arxiv.org/abs/2104.12016).
 
-### a fork in the road, knn
+### a horizon i wanted to go towards: ann
 
 To move to [k Nearest Neighbors
 (KNN)](https://www.youtube.com/watch?v=HVXime0nQeI&ab_channel=StatQuestwithJoshStarmer),
@@ -46,13 +51,13 @@ As with topic sharding in traditional search, a technique to trade recall
 for latency is to cluster similar things together and route the query only
 to the most "promising" clusters. Commonly we'll see
 [k-means](https://www.youtube.com/watch?v=4b5d3muPQmA&ab_channel=StatQuestwithJoshStarmer)
-used to cluster similar document vectors together, then we average each of
-those clusters to produce averaged "prototype" vectors, which we use much
-like terms in something like an inverted index. Again, note that
-clustering offers a trade-off away from exact search: we get faster
-search, but lower recall, since we won't visit every cluster on every
-search. In the below, the "blue box" for ANN is that set of "prototype"
-vectors representing each of the clusters.
+used for document vectors, then we average each of those clusters to
+produce averaged "prototype" vectors, which we use much like terms in
+something like an inverted index. Again, note that clustering offers
+a trade-off away from exact search: we get faster search, but lower
+recall, since we won't visit every cluster on every search. In the below,
+the "blue box" for ANN is that set of "prototype" vectors representing
+each of the clusters.
 
 ![](/images/lex-ann.png)
 
@@ -87,7 +92,6 @@ deployments I've seen prefer a "long" blue box with an HNSW data structure
 to navigate it, a fairly small k representing the number of top clusters,
 and then each cluster in the k set is scored exactly and exhaustively.
 
-
 ### steep climbing: how do we make ann faster?
 
 Nearest neighbors implies a distance function on a space. As with most
@@ -95,9 +99,9 @@ traversal problems, if we pre-calculate ("index") some information about
 our "space," we can navigate a it more efficiently at search "runtime."
 (Paying the cost in [update and memory to speed up
 read](https://stratos.seas.harvard.edu/files/stratos/files/rum.pdf).) The
-analogy would be that you don't need to search every block for the White
-House, since you know at least to start it needs to be somewhere in
-Washington D.C.
+analogy would be that you don't need to search every block for the Golden
+Gate Bridge, since you know at least to start it needs to be somewhere in
+California.
 
 The question is, what information do we need to "navigate" quickly? In
 fact, it turns out the term "navigable" in "Hierarchical Navigable Small
@@ -107,14 +111,24 @@ the reverse chronology of the concepts. Since graphs go back to 1736,
 we'll skip ahead to the 90s and start with "small world," just pausing to
 note the features of graphs needed to understand.
 
+#### in the sea first: concrete origins of this problem
+
+Part of what's fun across these papers, which I only touch on lightly here
+and not in the rest of this tour, is that many of them refer to a real
+life concrete phenomenon that appeared to be true: [the six degrees of
+separation experiments run by Milgram in the
+1960s](https://en.wikipedia.org/wiki/Six_degrees_of_separation#Small_world).
+Which were actually proceeded by Manfred Kochen's Monte Carlo simulations
+that predicted three. Why was it possible that people using only "local"
+information (who they knew directly) were able to get a message through
+across a "global" space by a relatively short path a non-negligible amount
+of the time?
+
 #### graphs, at sea level
 
 As a simplification, we'll put graphs on a spectrum. On one end, we have
 random graphs. On the other end, regular graphs. Beyond the intuitive
-naming, the graph types can be categorized with a clustering coefficient
-(this is not quite the same as the above use of the word cluster, in
-k-means clustering the data points may not be literally connected to each
-other in a graph):
+naming, the graph types can be categorized with a clustering coefficient:
 
 $$C(v)={e(v) \over deg(v)(deg(v)-1)/2}$$
 
@@ -146,7 +160,7 @@ slides](https://www.kth.se/social/upload/514c7450f276547cb33a1992/2-kleinberg.pd
 As a sidebar, I was really tickled to find [Steven
 Strogatz](https://podcasts.apple.com/us/podcast/the-joy-of-x/id1495067186)
 worked on this paper since I've read some of his books and listened to his
-podcast.
+podcast. It's a bit like seeing a celebrity in your local coffee shop.
 
 1998: ["Collective dynamics of ‘small-world’
 networks"](https://www.nature.com/articles/30918)
@@ -163,9 +177,79 @@ properties:
 > nodes can be reached from every other node by a small number of hops or
 > steps.
 
-How? Simply by "rewiring" some edges at random!
+How? Simply by "rewiring" some edges at random! More formally:
+
+> With probability p, we reconnect this edge to a vertex chosen uniformly
+> at random over the entire ring, with duplicate edges forbidden;
+> otherwise we leave the edge in place.
+
+Because they can parameterize probability p between 0 for regular and
+1 for random, they've found a way to make _this_ or _that_ into
+a continuous space where there's a meaningful "between" between.
+
+That parameterization can then allow you to graph the clustering
+coefficient and path length, too:
+
+![](/images/c_v_l.png)
 
 #### 2/3rds of the way up, navigable
+
+Before we discuss "navigable" directly, first let's stop at a fun "cabin"
+on our climb: P2P networks. With peer-to-peer networks, definitionally, we
+need decentralized search. With decentralization, greedy approaches are
+great because, implicitly, they're using _local_ ("who are my immediate
+peers") not global ("who are all the possible peers") information --
+centralization requires global information. It also means:
+
+> if one had full global knowledge of the local and long-range contacts of
+> all nodes in the network, the shortest chain between two nodes could be
+> computed simply by breadth-first search.
+
+2000: ["The Small-World Phenomenon: An Algorithmic
+Perspective"](https://www.stat.berkeley.edu/~aldous/Networks/swn-1.pdf)
+
+> Although recently proposed network models are rich in short paths, we
+> prove that no decentralized algorithm, operating with local information
+> only, can construct short paths in these networks with non-negligible
+> probability. We then define an infinite family of network models that
+> naturally generalizes the Watts-Strogatz model, and show that for one of
+> these models, there is a decentralized algorithm capable of finding
+> short paths with high probability.
+
+Really read the above, it is saying: "lots of people have tried and
+they're definitely wrong because I found literally the only right way to
+do this." Math is just plain different from other kinds of writing.
+
+Kleinberg's paper was cited in the work that finally began applying these
+properties to nearest neighbor search with the note:
+
+> The first algorithmic navigation model with a local greedy routing was
+> proposed by J. Kleinberg [but] the exact mechanism that is responsible
+> for formation of navigation properties in real-life networks remained
+> unknown.
+
+Funny enough, the word "greedy" doesn't even appear in his paper. And
+neither does navigable.
+
+TK - where does navigable come in as a term for the first time?
+
+2007: ["Peer to peer multidimensional overlays: approximating complex
+structures"](https://hal.inria.fr/inria-00164667/file/RR-6248.pdf)
+
+> In this paper we present the design, analysis and evaluation of RayNet,
+> a loosely structured Voronoï-based overlay network. RayNet organizes
+> peers in an approximation of a Voronoï tessellation in a fully
+> decentralized way. It relies on a Monte-Carlo algorithm to estimate the
+> size of a cell and on an epidemic protocol to discover neighbours. In
+> order to ensure efficient (polylogarithmic) routing, RayNet is inspired
+> from the Kleinberg’s small world model where each peer gets connected to
+> close neighbours (its approximate Voronoï neighbours in Raynet) and
+> shortcuts, long range neighbours, implemented using an existing
+> Kleinberg-like peer sampling.
+
+2011: ["Approximate Nearest Neighbor Search Small World
+Approach"](https://www.iiis.org/CDs2011/CD2011IDI/ICTA_2011/PapersPdf/CT175ON.pdf)
+
 
 2013: ["Approximate nearest neighbor algorithm based on navigable small world
 graphs"](https://publications.hse.ru/pubs/share/folder/x5p6h7thif/128296059.pdf)
