@@ -3,6 +3,7 @@ layout: post
 title: scenic tour of hnsw
 date: 2022-12-04 22:21 -0500
 usemathjax: true
+toc: true
 ---
 
 [WIP Post - 12/19/22] HNSW, which stands for "hierarchical navigable small
@@ -268,7 +269,8 @@ again a probability like the `p` Strogatz used above.
 > by a clustering exponent, $$\alpha$$, that determines the probability of
 > a connection between two nodes as a function of their lattice distance.
 
-He proved for a 2-d lattice $$\alpha=2$$, and for d, $$\alpha=d$$.
+He proved for a 2 dimensional lattice $$\alpha=2$$, and for d dimensional,
+$$\alpha=d$$.
 
 2007: ["Peer to peer multidimensional overlays: approximating complex
 structures"](https://hal.inria.fr/inria-00164667/file/RR-6248.pdf)

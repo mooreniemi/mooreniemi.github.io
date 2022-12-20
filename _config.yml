@@ -29,6 +29,9 @@ theme: minima
 
 highlighter: rouge
 
+plugins:
+  - jekyll-toc
+
 # More › http://kramdown.gettalong.org/quickref.html
 # Options › http://kramdown.gettalong.org/options.html
 kramdown:
