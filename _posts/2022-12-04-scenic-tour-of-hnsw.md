@@ -204,8 +204,8 @@ too:
 
 ![](/images/c_v_l.png)
 
-I always love seeing a relatively simple model of key trade-off. Here it's
-the trade-off between clustering and path length.
+I always love seeing a relatively simple model of a key trade-off. Here
+it's the trade-off between clustering and path length.
 
 ### 2/3rds of the way up, navigable
 
