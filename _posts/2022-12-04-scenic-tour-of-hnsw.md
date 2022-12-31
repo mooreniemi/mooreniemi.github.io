@@ -6,7 +6,7 @@ usemathjax: true
 toc: true
 ---
 
-[WIP Post - 12/19/22] HNSW, which stands for "hierarchical navigable small
+[WIP Post - 12/31/22] HNSW, which stands for "hierarchical navigable small
 world" (graphs), is one of the first data structures for which I read not
 just its paper but the trail of papers backward in time until I arrived at
 one with a name I already knew. It was, in a very real sense, the first
@@ -259,8 +259,19 @@ In other words, he defines "navigability" as when a "decentralized
 algorithm can achieve a delivery time [of messages across the network]
 bounded by any polynomial in logN."
 
-He's himself using single $$\alpha$$ parameter for his model, which is
-again a probability like the $$p$$ Strogatz used above.
+And he comes up with a model that identifies when small worlds will be
+navigable:
+
+> A characteristic feature of small-world networks is that their diameter
+> is exponentially smaller than their size, being bounded by a polynomial
+> in logN, where N is the number of nodes. In other words, there is always
+> a very short path between any two nodes. This does not imply, however,
+> that a decentralized algorithm will be able to discover such short
+> paths. My central finding is that there is in fact a unique value of the
+> exponent $$\alpha$$ at which this is possible.
+
+$$\alpha$$ is the only parameter for his model, which is again
+a probability like the $$p$$ Strogatz used above.
 
 > Long-range connections are added to a two-dimensional lattice controlled
 > by a clustering exponent, $$\alpha$$, that determines the probability of
@@ -271,19 +282,27 @@ $$\alpha=d$$.
 
 #### 2007: ["Peer to peer multidimensional overlays: approximating complex structures"](https://hal.inria.fr/inria-00164667/file/RR-6248.pdf)
 
-> In this paper we present the design, analysis and evaluation of RayNet,
-> a loosely structured Voronoï-based overlay network. RayNet organizes
-> peers in an approximation of a Voronoï tessellation in a fully
-> decentralized way. It relies on a Monte-Carlo algorithm to estimate the
-> size of a cell and on an epidemic protocol to discover neighbours. In
-> order to ensure efficient (polylogarithmic) routing, RayNet is inspired
-> from the Kleinberg’s small world model where each peer gets connected to
-> close neighbours (its approximate Voronoï neighbours in Raynet) and
-> shortcuts, long range neighbours, implemented using an existing
-> Kleinberg-like peer sampling.
+I actually find the description of this paper by the next paper somewhat
+more helpful for contextualizing it than reading the original paper:
+
+> The first structure for solving ANN in $$E^d$$ with topology of small
+> world networks is Raynet. It is an extension of earlier work by the same
+> authors Voronet, which solved the problem of the exact NN in $$E^2$$.
+> Originally Voronet was envisioned as a p2p network, where every node has
+> coordinates in $$E^2$$. In Raynet every node has the coordinates in
+> $$E^d$$. The system supports two levels of links - short for correct
+> work of the greedy search algorithm and long - for logarithmic search.
+> Short links correspond to edges of Delaunay graph, i.e. each object has
+> references to objects that are neighbors of its Voronoi region. The main
+> difference of Raynet from Voronet is that in Raynet every object doesn’t
+> know all of its Voronoi neighbors, i.e. Raynet obtains neighborhood with
+> approximately using the Monte Carlo method.
 
 #### 2011: ["Approximate Nearest Neighbor Search Small World Approach"](https://www.iiis.org/CDs2011/CD2011IDI/ICTA_2011/PapersPdf/CT175ON.pdf)
 
+> Raynet is the closest work to ours in terms of general concept. But
+> unlike Raynet, we propose a structure that works with objects from
+> arbitrary metric spaces.
 
 #### 2013: ["Approximate nearest neighbor algorithm based on navigable small world graphs"](https://publications.hse.ru/pubs/share/folder/x5p6h7thif/128296059.pdf)
 
