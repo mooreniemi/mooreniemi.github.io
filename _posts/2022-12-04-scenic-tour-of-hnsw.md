@@ -6,15 +6,12 @@ usemathjax: true
 toc: true
 ---
 
-[WIP Post - 12/31/22] HNSW, which stands for "hierarchical navigable small
-world" (graphs), is one of the first data structures for which I read not
+[WIP Post - 01/15/23] HNSW, which stands for "Hierarchical Navigable Small
+World" (graphs), is one of the first data structures for which I read not
 just its paper but the trail of papers backward in time until I arrived at
 one with a name I already knew.
 
 ### the structure of this tour
-
-If you're familiar with the "terrain," you should feel free to skip to
-wherever is new for you.
 
 I start with inverted indices to ground and contrast approximate nearest
 neighbors search.
@@ -207,12 +204,14 @@ it's the trade-off between clustering and path length.
 
 ### 2/3rds of the way up, navigable
 
-To introduce navigable, we start from peer-to-peer (P2P) networks because
-definitionally, with P2P we need **decentralized search**.
+After Strogatz, Kleinberg picks up and changes the geometry of the
+question:
 
-With decentralization, greedy approaches are great because, implicitly,
-they're using _local_ ("who are my immediate peers") not global ("who are
-all the possible peers") information.
+> Rather than using a ring as the basic structure, however, we begin from
+> a two-dimensional grid and allow for edges to be directed.
+
+This switch from a ring to a lattice is a generalization that allows him
+to parameterize the probability with a Manhattan distance.
 
 #### 2000 (May): ["The Small-World Phenomenon: An Algorithmic Perspective"](https://www.stat.berkeley.edu/~aldous/Networks/swn-1.pdf)
 
@@ -224,22 +223,13 @@ all the possible peers") information.
 > these models, there is a decentralized algorithm capable of finding
 > short paths with high probability.
 
-In terms of visualization:
-
-> Rather than using a ring as the basic structure, however, we begin from
-> a two-dimensional grid and allow for edges to be directed.
-
-This switch from a ring to a lattice is a generalization that allows him
-to parameterize the probability with a Manhattan distance. (See further in
-next paper.)
-
-Kleinberg's paper was cited in the work that finally began applying these
-properties to nearest neighbor search with the note:
+Kleinberg's paper was cited in the [2016
+work](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4922669/) (it's further
+below) that finally began applying these properties to nearest neighbor
+search with the note:
 
 > The first algorithmic navigation model with a local greedy routing was
-> proposed by J. Kleinberg [but] the exact mechanism that is responsible
-> for formation of navigation properties in real-life networks remained
-> unknown.
+> proposed by J. Kleinberg
 
 But funny enough, the word "greedy" doesn't even appear in this paper. And
 neither does "navigable", only "navigation." That summer though, Kleinberg
@@ -274,8 +264,9 @@ Strogatz used.
 > The network model is derived from an $$n \times n$$ lattice. Each node,
 > $$u$$, has a short-range connection to its nearest neighbours $$(a, b,
 > c, d)$$ and long-range connection to a randomly chosen node, where node
-> $$v$$ is selected with probability proportional to $$r^1-\alpha$$, where
-> $$r$$ is the lattice (‘Manhattan’) distance between $$u$$ and $$v$$.
+> $$v$$ is selected with probability proportional to $$r^{1-\alpha}$$,
+> where $$r$$ is the lattice (‘Manhattan’) distance between $$u$$ and
+> $$v$$.
 
 Or in summary:
 
@@ -287,6 +278,14 @@ He proved for a 2 dimensional lattice $$\alpha=2$$, and for $$d$$
 dimensional, $$\alpha=d$$.
 
 #### 2007: ["Peer to peer multidimensional overlays: approximating complex structures"](https://hal.inria.fr/inria-00164667/file/RR-6248.pdf)
+
+For navigability, the literature goes through peer-to-peer (P2P) networks
+because definitionally, with P2P we need **decentralized search**. With
+decentralization, greedy approaches are desirable, because they're using
+_local_ ("who are my immediate peers") not global ("who are all the
+possible peers") information. By the small world constructions above, the
+local information of the node is sufficient for short path guarantees if
+long-range connections meet the right threshold.
 
 I actually find the description of this paper by the next paper somewhat
 more helpful for contextualizing it than reading the original paper:
