@@ -9,16 +9,11 @@ toc: true
 [WIP Post - 12/31/22] HNSW, which stands for "hierarchical navigable small
 world" (graphs), is one of the first data structures for which I read not
 just its paper but the trail of papers backward in time until I arrived at
-one with a name I already knew. It was, in a very real sense, the first
-academic hike I've taken through literature. Because I was not formally
-educated in math or computer science, I was intimidated by this kind of
-reading for too long. I hope these informal notes encourage others to try
-a hike of their own. (If you do, email me your "scenic tour," I want to
-read it!)
+one with a name I already knew.
 
 ### the structure of this tour
 
-If you're familiar with the terrain, you should feel free to skip to
+If you're familiar with the "terrain," you should feel free to skip to
 wherever is new for you.
 
 I start with inverted indices to ground and contrast approximate nearest
@@ -47,8 +42,7 @@ impact](https://arxiv.org/abs/2104.12016).
 To move to [k Nearest Neighbors
 (KNN)](https://www.youtube.com/watch?v=HVXime0nQeI&ab_channel=StatQuestwithJoshStarmer),
 that is, the setting in which HNSW is a meaningful approximation (thus ANN
-for _Approximate_ Nearest Neighbors), we first make the great, beautiful
-leap into space -- embedding space.
+for _Approximate_ Nearest Neighbors), we first move into embedding space.
 
 We need a model to encode the query and documents into vectors, rather
 than tokenizing them into terms, and then we need a distance function to
@@ -64,24 +58,21 @@ for latency is to cluster similar things together and route the query only
 to the most "promising" clusters. Commonly we'll see
 [k-means](https://www.youtube.com/watch?v=4b5d3muPQmA&ab_channel=StatQuestwithJoshStarmer)
 used for document vectors, then we average each of those clusters to
-produce averaged "prototype" vectors, which we use much like terms in
-something like an inverted index. Again, note that clustering offers
-a trade-off away from exact search: we get faster search, but lower
-recall, since we won't visit every cluster on every search. In the below,
-the "blue box" for ANN is that set of "prototype" vectors representing
-each of the clusters.
+produce averaged "prototype" vectors. If you squint, you can see we use
+these prototype vectors much like terms in something like an inverted
+index.
 
 ![](/images/lex-ann.png)
 
-When we think about using a clustered nearest neighbors index versus an
-inverted index for scoring scoring, we can see that in the scenario with
-embeddings, although we have something "like" a dictionary, we have an
-added step because we don't truly have the $$O(1)$$ key lookups. With an
-inverted index, as soon as we have tokenized `"cats and dogs"` to
-`["cat", "dog"]` we can use the tokens as keys directly to the lists of
-document values, which are called posting lists. With clustered
-embeddings, we first rank the cluster prototypes, and only then, for the
-top clusters, we rank their members.
+Although we have something "like" an inverted index, a key difference is
+that we have an added step because we don't truly have the $$O(1)$$ key
+lookups. With an inverted index, as soon as we have tokenized `"cats
+and dogs"` to `["cat", "dog"]` we can use the tokens as keys directly to
+the lists of document values, which are called posting lists. In KNN, the
+incoming query vector won't exactly match any prototype the way terms
+match. Instead, we first rank the cluster prototypes, and only then, for
+the top clusters, we rank their members. In the below, the "blue box" for
+ANN is that set of "prototype" vectors representing each of the clusters.
 
 ![](/images/lex-ann-2.png)
 
@@ -92,17 +83,22 @@ places where we could "speed up" distance calculations, I find it's
 sometimes confusing in practice to read documentation about HNSW. We can
 use it to make ranking (searching) the blue box below fast (the cluster
 prototypes), or we could even use it per each red box (the cluster
-members). Or if we have no clusters at all, we can use HNSW across _all_
-the embeddings, which would just be each of the red box rows concatenated
-next to each other. In practice, no clustering is usually only done for
-very "small" sets of embeddings, below say 10 million or so, which is
-actually the most common setup I've seen overall.
+members).
 
-This is why many `index_factory` settings in Faiss _start_ with `HNSW`:
-they're laying out how the blue box can be made quickly searchable. Often
-deployments I've seen prefer a "long" blue box with an HNSW data structure
-to navigate it, a fairly small k representing the number of top clusters,
-and then each cluster in the k set is scored exactly and exhaustively.
+Or if we have no clusters at all (imagine all the red box rows
+concatenated together, unpictured here), we can use HNSW across _all_ the
+embeddings. In practice, no clustering is usually only done for very
+"small" sets of embeddings, below say 10 million or so, which is actually
+the most common setup I've seen overall.
+
+This is why many [`index_factory` settings in
+Faiss](https://github.com/facebookresearch/faiss/wiki/The-index-factory)
+_start_ with `HNSW`: they're laying out how the blue box can be made
+quickly searchable. Often deployments I've seen prefer a "long" blue box
+with an HNSW data structure to navigate it, a fairly small `k`
+representing the number of top clusters, and then each cluster in the `k`
+set is scored exactly and exhaustively. `k` is tuned to find the best
+operating point between recall and latency.
 
 ### steep climbing: how do we make ann faster?
 
@@ -127,14 +123,16 @@ note the features of graphs needed to understand.
 
 Part of what's fun across these papers, which I only touch on lightly here
 and not in the rest of this tour, is that many of them refer to a real
-life concrete phenomenon that appeared to be true: [the six degrees of
-separation experiments run by Milgram in the
+life phenomenon: [the six degrees of separation experiments run by Milgram
+in the
 1960s](https://en.wikipedia.org/wiki/Six_degrees_of_separation#Small_world).
-Which were actually proceeded by Manfred Kochen's Monte Carlo simulations
-that predicted three. Why was it possible that people using only "local"
-information (who they knew directly) were able to get a message through
-across a "global" space by a relatively short path a non-negligible amount
-of the time?
+(Which were actually proceeded by [Manfred Kochen's Monte Carlo
+simulations](https://deepblue.lib.umich.edu/bitstream/handle/2027.42/23764/0000737.pdf)
+that predicted three degrees.)
+
+Why was it possible that people using only "local" information (who they
+knew directly) were able to get a message through across a "global" space
+by a relatively short path a non-negligible amount of the time?
 
 ### graphs, at sea level
 
@@ -153,9 +151,9 @@ a vertex divided roughly by the number of vertices immediately connected
 to it (ie. $$v$$'s neighborhood). If most of the things connected to you
 are near you, you're highly clustered. Regular graphs have this property,
 while random graphs do not. But at the same time, a regular graph has
-a high "diameter" (and a random graph low) because the maximum number of
-edges in the shortest path connecting the vertices for any vertex is high
-(or low, if you're random).
+a high "diameter" (and a random graph low, which Kochen noted was key)
+because the maximum number of edges in the shortest path connecting the
+vertices for any vertex is high (or low, if you're random).
 
 ![](/images/ann_graphs.png)
 
@@ -167,7 +165,7 @@ between_ in a precise and meaningful way? Yes! The small world graph!
 ![](/images/small_world.png)
 
 [Image from these excellent
-slides](https://www.kth.se/social/upload/514c7450f276547cb33a1992/2-kleinberg.pdf)
+slides](https://www.kth.se/social/upload/514c7450f276547cb33a1992/2-kleinberg.pdf) of the Strogatz model of social networks (ring model)
 
 As a sidebar, I was really tickled to find [Steven
 Strogatz](https://podcasts.apple.com/us/podcast/the-joy-of-x/id1495067186)
@@ -209,18 +207,12 @@ it's the trade-off between clustering and path length.
 
 ### 2/3rds of the way up, navigable
 
-Before we discuss "navigable" directly, first let's stop at a fun "cabin"
-on our climb: P2P networks.
+To introduce navigable, we start from peer-to-peer (P2P) networks because
+definitionally, with P2P we need **decentralized search**.
 
-With peer-to-peer networks, definitionally, we need decentralized search.
 With decentralization, greedy approaches are great because, implicitly,
 they're using _local_ ("who are my immediate peers") not global ("who are
-all the possible peers") information -- whereas centralization requires
-global information. It also means:
-
-> if one had full global knowledge of the local and long-range contacts of
-> all nodes in the network, the shortest chain between two nodes could be
-> computed simply by breadth-first search.
+all the possible peers") information.
 
 #### 2000 (May): ["The Small-World Phenomenon: An Algorithmic Perspective"](https://www.stat.berkeley.edu/~aldous/Networks/swn-1.pdf)
 
@@ -232,9 +224,14 @@ global information. It also means:
 > these models, there is a decentralized algorithm capable of finding
 > short paths with high probability.
 
-Really read the above, it is saying: "lots of people have tried and
-they're definitely wrong because I found literally the only right way to
-do this." Math is just plain different from other kinds of writing.
+In terms of visualization:
+
+> Rather than using a ring as the basic structure, however, we begin from
+> a two-dimensional grid and allow for edges to be directed.
+
+This switch from a ring to a lattice is a generalization that allows him
+to parameterize the probability with a Manhattan distance. (See further in
+next paper.)
 
 Kleinberg's paper was cited in the work that finally began applying these
 properties to nearest neighbor search with the note:
@@ -244,8 +241,8 @@ properties to nearest neighbor search with the note:
 > for formation of navigation properties in real-life networks remained
 > unknown.
 
-Funny enough, the word "greedy" doesn't even appear in his paper. And
-neither does "navigable", only "navigation." But that summer, Kleinberg
+But funny enough, the word "greedy" doesn't even appear in this paper. And
+neither does "navigable", only "navigation." That summer though, Kleinberg
 goes on to write:
 
 #### 2000 (August): ["Navigation in a small world"](https://www.nature.com/articles/35022643)
@@ -259,7 +256,7 @@ In other words, he defines "navigability" as when a "decentralized
 algorithm can achieve a delivery time [of messages across the network]
 bounded by any polynomial in logN."
 
-And he comes up with a model that identifies when small worlds will be
+And describes his model that identifies when small worlds will be
 navigable:
 
 > A characteristic feature of small-world networks is that their diameter
@@ -270,15 +267,24 @@ navigable:
 > paths. My central finding is that there is in fact a unique value of the
 > exponent $$\alpha$$ at which this is possible.
 
-$$\alpha$$ is the only parameter for his model, which is again
-a probability like the $$p$$ Strogatz used above.
+$$\alpha$$ is the new parameter for his model, which modifies $$r$$, where
+$$r$$ functions as the same long-range connection probability $$p$$
+Strogatz used.
+
+> The network model is derived from an $$n \times n$$ lattice. Each node,
+> $$u$$, has a short-range connection to its nearest neighbours $$(a, b,
+> c, d)$$ and long-range connection to a randomly chosen node, where node
+> $$v$$ is selected with probability proportional to $$r^1-\alpha$$, where
+> $$r$$ is the lattice (‘Manhattan’) distance between $$u$$ and $$v$$.
+
+Or in summary:
 
 > Long-range connections are added to a two-dimensional lattice controlled
 > by a clustering exponent, $$\alpha$$, that determines the probability of
 > a connection between two nodes as a function of their lattice distance.
 
-He proved for a 2 dimensional lattice $$\alpha=2$$, and for d dimensional,
-$$\alpha=d$$.
+He proved for a 2 dimensional lattice $$\alpha=2$$, and for $$d$$
+dimensional, $$\alpha=d$$.
 
 #### 2007: ["Peer to peer multidimensional overlays: approximating complex structures"](https://hal.inria.fr/inria-00164667/file/RR-6248.pdf)
 
