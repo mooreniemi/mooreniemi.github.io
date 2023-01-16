@@ -30,10 +30,13 @@ backwards, moving from 1998 through to 2016 when the main paper is published.
 - We want to query without exact matching between query and document, so we
   model querying as a space where matching is distance.
 - We want to calculate distances between our query and our documents as quickly
-  as possible, so we pre-calculate a proximity graph, that can be navigated at
-  search time with local information only.
+  as possible, so we pre-calculate an approximate proximity graph of our
+  documents to each other. It turns out if we simply save the "garbage" links
+  we produce at the beginning of this graph construction, our graph actually
+  becomes better for searching efficiently. (This is the navigable small world
+  part.)
 - We want to go even faster, so we stack proximity graphs from coarse to fine
-  grained.
+  grained. (This is the hierarchical part.)
 
 ### inverted indices to ann
 
@@ -373,20 +376,25 @@ just one that isn't learned:
 > representing one attribute. The coordinates of an object in this space
 > are uniquely specified by its values, one for each attribute.
 
-The authors continue in the Raynet paper:
+The authors continue in the Raynet paper, where they pursue an approximation of
+the Voronoi structure:
 
 #### 2007: ["Peer to peer multidimensional overlays: approximating complex structures"](https://hal.inria.fr/inria-00164667/file/RR-6248.pdf)
 
-> To achieve a structure that permits nearest neighbour and range queries
-> possibilities, peers having close attribute values should be linked to each
-> other in the overlay. [...] This property ensures that a greedy routing
-> process always succeeds, since the distance to the destination point is
-> reduced at each step during the query propagation process. A structure that
-> ensures this property is the Delaunay graph, which is the dual of the Voronoï
-> diagram.
+> [We] propose the design and evaluation of RayNet, a weakly structured overlay
+> network, achieving an approximation of a Voronoï tessellation. Following the
+> generic approximation method [using Monte-Carlo], each peer in RayNet relies
+> on an epidemic-based protocol to discover its neighbours. Using such
+> a protocol, the quality of the estimation gradually improves to eventually
+> achieve a close approximation of a Voronoï tessellation. [...] Each peer in
+> RayNet also maintains a set of long-range links (also called shortcuts) to
+> implement a small-world topology. Efficient (poly-logarithmic) routing in
+> RayNet is achieved by choosing the shortcuts according to a distribution
+> advocated by Kleinberg. Both links are created by gossip-based protocols. 
 
 I found these two papers by the next paper (which is actually by the authors of
-the HNSW paper) from their own origins summary:
+the HNSW paper) from their own origins summary which leaves out the
+gossip-based aspect:
 
 > The first structure for solving ANN in $$E^d$$ with topology of small
 > world networks is Raynet. It is an extension of earlier work by the same
@@ -438,22 +446,23 @@ They do this because:
 One tiny dead-end I had here is that this paper cites two papers I couldn't
 find online for how they conceived of the Delaunay construction algorithm, in
 2008: "Metrized Small World Properties Data Structure" and in 2009:
-"Single-attribute Distributed Metrized Small World Data Structure."
+"Single-attribute Distributed Metrized Small World Data Structure." That's too
+bad because it means I'm not sure how far back to date the key insight (more on
+it in the two papers below), but they mention it wasn't new to them in 2011:
 
 > In [the 2008 paper and 2009 paper the] authors also have shown theoretically
 > and confirmed by experimental results that graph which constructed by
 > proposed algorithm has properties of small world network if elements arrive
 > in random order.
 
-But ultimately the construction algorithm is very simple, and basically relies
-on using the multi-search algorithm.
-
-This paper is not cited by the authors, instead the next 2012 paper seems to
-rewrite this one, with some more plots, and get cited thereafter.
+This 2011 paper is not cited by the authors, instead the next 2012 paper seems
+to rewrite this one, with some more plots, and get cited thereafter.
 
 #### 2012: ["Scalable Distributed Algorithm for Approximate Nearest Neighbor Search Problem in High Dimensional General Metric Spaces"](https://www.hse.ru/data/2013/10/01/1277293157/Sisap%202012%20Scalable%20Distributed%20Algorithm%20for%20Approximate%20Nearest.pdf)
 
-The description of adding nodes is a bit tighter in this paper:
+The description of construction (adding nodes) is a bit tighter in this paper,
+so I'll focus on the key insight here and in the next paper, though it
+pre-dates this publication:
 
 > We propose to assemble the structure by adding elements one by one and
 > connecting them on each step with the $$k$$ closest objects which are already
@@ -465,12 +474,27 @@ The description of adding nodes is a bit tighter in this paper:
 > which approximate the Delaunay graph.
 
 That is, to construct a new node, we basically do a greedy search of the
-existing nodes.
+existing nodes. 
+
+Something **really** clever happened here: they realized that when constructing
+the Delaunay graph randomly like this, some long-range links are created at the
+beginning that don't represent the actual _nearest_ neighbors but instead
+exactly the kind of shortcuts we want to be a small world!
 
 #### 2013: ["Approximate nearest neighbor algorithm based on navigable small world graphs"](https://publications.hse.ru/pubs/share/folder/x5p6h7thif/128296059.pdf)
 
-Here we've switched from $$k$$ to $$w$$. If you're coming from FAISS, you'll
-recognize $$w$$ below as `efConstruct`.
+Having read the VoroNet and Raynet papers, seeing just how simple this solution
+ultimately was really felt elegant to me:
+
+> The navigable small world is created simply by keeping old Delaunay graph
+> approximation links produced at the start of construction.
+
+I can't get over this. They basically noticed that they could get exactly what
+they wanted, for free, by doing it the simple way. "One man's trash is another
+man's treasure."
+
+In this paper, we switch from $$k$$ to $$w$$. If you're coming from FAISS,
+you'll recognize $$w$$ below as `efConstruct`.
 
 > The parameter $$w$$ affects how accurate is determination (recall) of nearest
 > neighbors in the construction algorithm [2012 paper above]. Like in Section
@@ -482,7 +506,7 @@ recognize $$w$$ below as `efConstruct`.
 > recall at insertion higher than 0.99 have no measurable effect on the search
 > quality.
 
-The abstract also mentions the performance:
+The abstract also mentions the performance, which is impressive:
 
 > Only 0.03% of the 10 million 208-dimensional vector dataset is needed to be
 > evaluated to achieve 0.999 recall (virtually exact search). For recall 0.93
@@ -499,10 +523,10 @@ results. They were clearly trying to see whether the observation they had in
 previous papers about how to efficiently grow their graphs was getting used by
 reality somewhere.
 
->  In this work we show that [navigability] can be directly achieved by using
->  just two ingredients that are present in the majority of real-life networks:
->  network growth and local homophily, giving a simple and persuasive answer to
->  the question of the nature of navigability in real-life systems.
+> In this work we show that [navigability] can be directly achieved by using
+> just two ingredients that are present in the majority of real-life networks:
+> network growth and local homophily, giving a simple and persuasive answer to
+> the question of the nature of navigability in real-life systems.
 
 They define "Growing Homophilic" networks or GH networks as those that are
 constructed the way they constructed their Delaunay graph in the previous
@@ -515,12 +539,13 @@ to predict observations about living systems.
 
 ### the summit: adding hierarchy
 
-We've spent almost 15 years just in navigability! 
+We've spent almost 15 years just in navigability!
 
 Though I think arguably the authors had basically everything they needed in
-2011 except for the idea of a skip list (a [1990 paper
+2011 (maybe even 2008) except for the idea of a skip list (a [1990 paper
 introduces](https://15721.courses.cs.cmu.edu/spring2017/papers/07-oltpindexes1/pugh-skiplists-cacm1990.pdf))
-to replace the multi-search approach.
+to replace the multi-search approach, it's not until 2016 that we finally see
+the HNSW paper appear.
 
 #### 2016: ["Efficient and robust approximate nearest neighbor search using Hierarchical Navigable Small World graphs"](https://arxiv.org/abs/1603.09320)
 
@@ -544,7 +569,9 @@ this:
 
 ![](/images/hnsw-layers.png)
 
-Simple, no?
+This paper focuses on how to sample into these layers, which adds a new
+parameter to tune, and compares against many other implementations in
+[ann-benchmarks.com](http://ann-benchmarks.com/).
 
 One offhand comment in this paper caught my curiosity for another time, their
 own analysis on the Delaunay graph approximation only went up to $$d$$ of 128.
