@@ -6,20 +6,26 @@ usemathjax: true
 toc: true
 ---
 
+### the goal and structure of this tour
+
 [WIP Post - 01/16/23] HNSW, which stands for "Hierarchical Navigable Small
-World" (graphs), is one of the first data structures for which I read not
-just its paper but the trail of papers backward in time until I arrived at
-one with a name I already knew.
+World" (graphs), is one of the first data structures for which I read not just
+its paper but (a lot of) the trail of papers backward in time until I arrived
+at one with a name I already knew.
 
-### the structure of this tour
+I took these notes for myself to capture my own understanding. I think they're
+a decent path to retread for others, but if you just want to understand how
+HNSW works or how to use it, I'd sooner recommend [Pinecone's
+guide](https://www.pinecone.io/learn/hnsw/). Similarly, I'd actually sooner
+recommend the first few chapters of Oskar Sandberg's thesis [Searching in
+a Small World](https://freenetproject.org/papers/lic.pdf) than my notes to take
+you through up to the section covering P2P networks (~2006).
 
-I start with inverted indices to ground and contrast approximate nearest
-neighbors search.
+Because of my background in search, I start with inverted indices to ground and
+contrast approximate nearest neighbors search. Then I work the name "HNSW"
+backwards, moving from 1998 through to 2016 when the main paper is published.
 
-Then I work the name "HNSW" backwards, moving from 1998 through to 2016
-when the main paper is published.
-
-#### tl;dr
+#### my hnsw tl;dr
 
 - We want to query without exact matching between query and document, so we
   model querying as a space where matching is distance.
@@ -309,7 +315,7 @@ structured as regular:
 > their expressiveness is naturally limited by the exact-match interface
 > they provide.
 
-#### proximity graphs
+#### brief interlude: proximity graphs
 
 Before we continue through the rest of the papers, I think it's helpful to zoom
 back out and visualize what we're doing. Our question is still how to navigate
@@ -350,8 +356,9 @@ Search"](https://arxiv.org/pdf/2101.12631.pdf).
 
 This paper focuses on $$E^2$$ and cites Kleinberg's work on long-range
 connections, which are tracked as well as a node's Voronoi neighbors. Their
-method for recomputing the Voronoi region is a citation to a paper I couldn't
-access, but I assume is exact.
+method for recomputing the Voronoi region is a citation to [a paper I couldn't
+access](https://link.springer.com/chapter/10.1007/3-540-45545-0_10), but
+I assume is exact.
 
 > VoroNet [is] an object-based peer to peer overlay network relying on
 > Voronoi tessellations [and] differs from previous overlay networks in
@@ -415,17 +422,105 @@ generalization they made beyond $$E^d$$ in the abstract:
 > are circumvented by performing a series of searches starting from
 > arbitrary elements of the structure.
 
+Which they make precise with:
+
+> If probability to find true closest in one search attempt is $$p$$ then
+> probability to find the same element in search attempts is $$1-(1-p)^m$$, so
+> failure probability decreases exponentially with the number of search
+> attempts.
+
+They do this because:
+
+> it is impossible to determine [the] exact Delaunay graph (excluding the
+> variant of the complete graph) [so] we cannot avoid the existence of local
+> minimums [unless we start from multiple random origin points]
+
+One tiny dead-end I had here is that this paper cites two papers I couldn't
+find online for how they conceived of the Delaunay construction algorithm, in
+2008: "Metrized Small World Properties Data Structure" and in 2009:
+"Single-attribute Distributed Metrized Small World Data Structure."
+
+> In [the 2008 paper and 2009 paper the] authors also have shown theoretically
+> and confirmed by experimental results that graph which constructed by
+> proposed algorithm has properties of small world network if elements arrive
+> in random order.
+
+But ultimately the construction algorithm is very simple, and basically relies
+on using the multi-search algorithm.
+
+This paper is not cited by the authors, instead the next 2012 paper seems to
+rewrite this one, with some more plots, and get cited thereafter.
+
+#### 2012: ["Scalable Distributed Algorithm for Approximate Nearest Neighbor Search Problem in High Dimensional General Metric Spaces"](https://www.hse.ru/data/2013/10/01/1277293157/Sisap%202012%20Scalable%20Distributed%20Algorithm%20for%20Approximate%20Nearest.pdf)
+
+The description of adding nodes is a bit tighter in this paper:
+
+> We propose to assemble the structure by adding elements one by one and
+> connecting them on each step with the $$k$$ closest objects which are already
+> in the structure. It is based on the idea that intersection of the set of
+> elements which are Voronoi neighbors and the $$k$$ closest elements should be
+> large. [...] A graph created by such algorithm with data arriving in random
+> order has small world navigation properties without any additional
+> algorithms. That allows us to fully concentrate on the short-range links
+> which approximate the Delaunay graph.
+
+That is, to construct a new node, we basically do a greedy search of the
+existing nodes.
+
 #### 2013: ["Approximate nearest neighbor algorithm based on navigable small world graphs"](https://publications.hse.ru/pubs/share/folder/x5p6h7thif/128296059.pdf)
 
-> The navigable small world is created simply by keeping old Delaunay
-> graph approximation links produced at the start of construction.
+Here we've switched from $$k$$ to $$w$$. If you're coming from FAISS, you'll
+recognize $$w$$ below as `efConstruct`.
+
+> The parameter $$w$$ affects how accurate is determination (recall) of nearest
+> neighbors in the construction algorithm [2012 paper above]. Like in Section
+> 4.2, setting $$w$$ to a big number is equivalent to exhaustive search of the
+> closest elements in the structure resulting in a perfect recall. The idea is
+> to set $$w$$ big enough to have the recall close to unity (e.g. 0.95– 0.99).
+> Smaller recall will create a fraction of wrong links which solely increase
+> complexity of the algorithm, while our experiments indicate that increasing
+> recall at insertion higher than 0.99 have no measurable effect on the search
+> quality.
+
+The abstract also mentions the performance:
+
+> Only 0.03% of the 10 million 208-dimensional vector dataset is needed to be
+> evaluated to achieve 0.999 recall (virtually exact search). For recall 0.93
+> processing speed 2800 queries/s can be achieved on a dual Intel X5675 Xenon
+> server node with Java implementation.
 
 #### 2016: ["Growing Homophilic Networks Are Natural Navigable Small Worlds"](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0158162)
 
-> Navigability, an ability to find a logarithmically short path between
-> elements using only local information...
+This paper was published in PLOS ONE, which is not a math or CS journal, but
+general science, and links back to some real-life examples of navigability.
+(And originally in [Physics arXiv 2015](https://arxiv.org/abs/1507.06529).) As
+it's targeting a different audience, it has a lot more connection to empirical
+results. They were clearly trying to see whether the observation they had in
+previous papers about how to efficiently grow their graphs was getting used by
+reality somewhere.
+
+>  In this work we show that [navigability] can be directly achieved by using
+>  just two ingredients that are present in the majority of real-life networks:
+>  network growth and local homophily, giving a simple and persuasive answer to
+>  the question of the nature of navigability in real-life systems.
+
+They define "Growing Homophilic" networks or GH networks as those that are
+constructed the way they constructed their Delaunay graph in the previous
+papers but "slightly modified by adding a preferential attachment" to better
+match observations.
+
+It's really neat to see the back and forth relationship from observing reality
+through to pretty abstract concerns in P2P networks all the way back to trying
+to predict observations about living systems.
 
 ### the summit: adding hierarchy
+
+We've spent almost 15 years just in navigability! 
+
+Though I think arguably the authors had basically everything they needed in
+2011 except for the idea of a skip list (a [1990 paper
+introduces](https://15721.courses.cs.cmu.edu/spring2017/papers/07-oltpindexes1/pugh-skiplists-cacm1990.pdf))
+to replace the multi-search approach.
 
 #### 2016: ["Efficient and robust approximate nearest neighbor search using Hierarchical Navigable Small World graphs"](https://arxiv.org/abs/1603.09320)
 
@@ -434,3 +529,29 @@ generalization they made beyond $$E^d$$ in the abstract:
 > Hierarchical NSW incrementally builds a multi-layer structure consisting
 > from hierarchical set of proximity graphs (layers) for nested subsets of
 > the stored elements.
+
+I think it's helpful here to glance at a simpler [skip
+list](https://en.wikipedia.org/wiki/Skip_list) for a picture of how this
+hierarchy works to speed up search. In this example, we're searching for the
+leaf node `24` by comparing with elements in probabilistically constructed
+"express lanes" that are subsets of the list "lane" or "level" directly below
+them.
+
+![](/images/skip-list.png)
+
+The HNSW hierarchy is of proximity graphs rather than lists, so it looks like
+this:
+
+![](/images/hnsw-layers.png)
+
+Simple, no?
+
+One offhand comment in this paper caught my curiosity for another time, their
+own analysis on the Delaunay graph approximation only went up to $$d$$ of 128.
+Beyond that:
+
+> Further [analytical] evidence is required to confirm whether the resilience
+> of Delaunay graph [approximations] generalizes to higher dimensional spaces.
+
+Given we commonly see 256, 1024 and higher dimension embeddings now, I wonder
+what level of error we get there.
