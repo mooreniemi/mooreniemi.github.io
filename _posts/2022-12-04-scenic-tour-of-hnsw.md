@@ -6,7 +6,7 @@ usemathjax: true
 toc: true
 ---
 
-[WIP Post - 01/15/23] HNSW, which stands for "Hierarchical Navigable Small
+[WIP Post - 01/16/23] HNSW, which stands for "Hierarchical Navigable Small
 World" (graphs), is one of the first data structures for which I read not
 just its paper but the trail of papers backward in time until I arrived at
 one with a name I already knew.
@@ -19,36 +19,54 @@ neighbors search.
 Then I work the name "HNSW" backwards, moving from 1998 through to 2016
 when the main paper is published.
 
-### where i come from: inverted indices
+#### tl;dr
 
-I didn't start at zero when approaching the HNSW data structure. My
-background meant I was quite familiar with inverted indices for search.
+- We want to query without exact matching between query and document, so we
+  model querying as a space where matching is distance.
+- We want to calculate distances between our query and our documents as quickly
+  as possible, so we pre-calculate a proximity graph, that can be navigated at
+  search time with local information only.
+- We want to go even faster, so we stack proximity graphs from coarse to fine
+  grained.
 
-So let's start there as the initial setting. In "lexical" or "sparse"
-search, documents are tokenized into terms and each term is a key in
-a dictionary in which we keep some information about the term's importance
-in the document. Historically, this information was used to calculate
-[tf-idf](https://en.wikipedia.org/wiki/Tf%E2%80%93idf) or
-[bm25](https://en.wikipedia.org/wiki/Okapi_BM25) ranking functions via
+### inverted indices to ann
+
+ANN can be used for different modalities than matching and ranking text
+documents, but since that's my main background, I focus on that here.
+
+In "lexical" or "sparse" search, documents are tokenized into terms and
+each term is a key in a dictionary in which we keep some information about
+the term's importance in the document. Historically, this information was
+used to calculate [tf-idf](https://en.wikipedia.org/wiki/Tf%E2%80%93idf)
+or [bm25](https://en.wikipedia.org/wiki/Okapi_BM25) ranking functions via
 statistics of the underlying corpus, but it can also be importance
 information calculated by a deep neural network, as is done in [deep
 impact](https://arxiv.org/abs/2104.12016).
-
-### a horizon i wanted to go towards: ann
 
 To move to [k Nearest Neighbors
 (KNN)](https://www.youtube.com/watch?v=HVXime0nQeI&ab_channel=StatQuestwithJoshStarmer),
 that is, the setting in which HNSW is a meaningful approximation (thus ANN
 for _Approximate_ Nearest Neighbors), we first move into embedding space.
 
-We need a model to encode the query and documents into vectors, rather
-than tokenizing them into terms, and then we need a distance function to
-measure the distance between these vectors. (Of course, we must have had
-a distance function in mind when we embedded the vectors into "space" in
-the first place.) If we like, we can do "exhaustive" search here which is
-exact, where each document's vector is measured against our query vector,
-but at scale, approximations are used since distance calculations are
-relatively expensive.
+Each document has to be encoded into a vector which represents its
+coordinates in embedding space. A distance function can then measure
+similarity between documents as closeness in space. Deep neural networks
+are generally used now to learn this "embedding" vector. To find the
+closest documents to a query, we'd need to exhaustively calculate the
+distance between each. Since this can be slow and expensive at large
+corpus sizes, it can be worthwhile to construct additional data structures
+to speed up navigation through the space. (Paying the cost in [update and
+memory to speed up
+read](https://stratos.seas.harvard.edu/files/stratos/files/rum.pdf).) For
+that purpose, HNSW is set of proximity graphs from less to more granular.
+
+HNSW can be used directly on a set of embeddings, which is common for data
+sets with only a few million documents, or it can be used with clustering.
+
+#### an aside: ann clustering vs inverted indices
+
+In HNSW deployments larger than a few million documents, clustering of
+some kind is typically used.
 
 As with topic sharding in traditional search, a technique to trade recall
 for latency is to cluster similar things together and route the query only
@@ -61,67 +79,42 @@ index.
 
 ![](/images/lex-ann.png)
 
-Although we have something "like" an inverted index, a key difference is
-that we have an added step because we don't truly have the $$O(1)$$ key
-lookups. With an inverted index, as soon as we have tokenized `"cats
-and dogs"` to `["cat", "dog"]` we can use the tokens as keys directly to
-the lists of document values, which are called posting lists. In KNN, the
-incoming query vector won't exactly match any prototype the way terms
-match. Instead, we first rank the cluster prototypes, and only then, for
+Although we have something "like" an inverted index, an obvious difference
+is that we have an added step because we can't do $$O(1)$$ key lookups
+since our query does not necessarily equal any prototype or document
+vector. With an inverted index, as soon as we have tokenized `"cats and
+dogs"` to `["cat", "dog"]` we can use the tokens as keys directly to the
+lists of document values, which are called posting lists. In ANN, we must
+first rank the cluster prototypes against the query, and only then, for
 the top clusters, we rank their members. In the below, the "blue box" for
 ANN is that set of "prototype" vectors representing each of the clusters.
 
 ![](/images/lex-ann-2.png)
 
-We ultimately want some balance between the length of the "blue box" of
-cluster prototypes and the average (hopefully fairly even) length of the
-"red boxes" containing the members of the cluster. Because we have two
-places where we could "speed up" distance calculations, I find it's
-sometimes confusing in practice to read documentation about HNSW. We can
-use it to make ranking (searching) the blue box below fast (the cluster
-prototypes), or we could even use it per each red box (the cluster
-members).
-
-Or if we have no clusters at all (imagine all the red box rows
-concatenated together, unpictured here), we can use HNSW across _all_ the
-embeddings. In practice, no clustering is usually only done for very
-"small" sets of embeddings, below say 10 million or so, which is actually
-the most common setup I've seen overall.
-
-This is why many [`index_factory` settings in
+If you've worked with it, you've probably noticed many [`index_factory`
+settings in
 Faiss](https://github.com/facebookresearch/faiss/wiki/The-index-factory)
-_start_ with `HNSW`: they're laying out how the blue box can be made
-quickly searchable. Often deployments I've seen prefer a "long" blue box
-with an HNSW data structure to navigate it, a fairly small `k`
-representing the number of top clusters, and then each cluster in the `k`
-set is scored exactly and exhaustively. `k` is tuned to find the best
-operating point between recall and latency.
+_start_ with `HNSW`, but it can mean more than one thing. If clustering is
+being done, they're laying out how the blue box should be indexed, whereas
+if clustering was not done then they're laying out how the concatenated
+red boxes should be indexed.
 
-### steep climbing: how do we make ann faster?
+Looking at the above pictures, you can get some intuition for how you need
+to balance the number of clusters with balance across the clusters. (It's
+actually pretty easy to hit pathological clustering where one cluster has
+many more members than any other.) Deployments I've seen prefer a "long"
+blue box with an HNSW data structure to navigate it, signifying many
+clusters, with relatively "short" red boxes. `k` (or `efSearch`) is the
+number of top clusters from the blue box and each of which returns a red
+box that is scored exactly and exhaustively. In the runtime, `k` is tuned
+to find the best operating point between recall and latency.
 
-Nearest neighbors implies a distance function on a space. As with most
-traversal problems, if we pre-calculate ("index") some information about
-our "space," we can navigate a it more efficiently at search "runtime."
-(Paying the cost in [update and memory to speed up
-read](https://stratos.seas.harvard.edu/files/stratos/files/rum.pdf).) The
-analogy would be that you don't need to search every block for the Golden
-Gate Bridge, since you know at least to start it needs to be somewhere in
-California.
+### the irl origins of hnsw
 
-The question is, what information do we need to "navigate" quickly? In
-fact, it turns out the term "navigable" in "Hierarchical Navigable Small
-World Graphs" actually has a precise meaning, as does the mysterious and
-almost informal sounding "small world." In order, the title is actually
-the reverse chronology of the concepts. Since graphs go back to 1736,
-we'll skip ahead to the 90s and start with "small world," just pausing to
-note the features of graphs needed to understand.
-
-### just a glancing view: the concrete origins of this problem
-
-Part of what's fun across these papers, which I only touch on lightly here
-and not in the rest of this tour, is that many of them refer to a real
-life phenomenon: [the six degrees of separation experiments run by Milgram
-in the
+Part of what's fun across the papers leading to HNSW, which I only touch
+on lightly here and not in the rest of this tour, is that many of them
+refer to a "real life" phenomenon: [the six degrees of separation
+experiments run by Milgram in the
 1960s](https://en.wikipedia.org/wiki/Six_degrees_of_separation#Small_world).
 (Which were actually proceeded by [Manfred Kochen's Monte Carlo
 simulations](https://deepblue.lib.umich.edu/bitstream/handle/2027.42/23764/0000737.pdf)
@@ -130,6 +123,17 @@ that predicted three degrees.)
 Why was it possible that people using only "local" information (who they
 knew directly) were able to get a message through across a "global" space
 by a relatively short path a non-negligible amount of the time?
+
+This is actually a very similar question to the one we're trying to figure
+out with ANN indexing: if you have a set of $$n$$ dimensional points, what
+information do we need to "navigate" around them quickly?
+
+In fact, it turns out the term "navigable" in "Hierarchical Navigable
+Small World Graphs" actually has a precise meaning, as does the mysterious
+and almost informal sounding "small world." In order, the title is
+actually the reverse chronology of the concepts. Since graphs go back to
+1736, we'll skip ahead to the 90s and start with "small world," just
+pausing to note the features of graphs needed to understand.
 
 ### graphs, at sea level
 
@@ -212,8 +216,9 @@ question:
 
 ![](/images/klein-grid.png)
 
-This switch from a ring to a lattice is a generalization that allows him
-to parameterize the probability with a Manhattan distance.
+This switch from a ring to a lattice (and going from "rewiring" existing
+edges to adding additional edges) is a generalization that allows him to
+parameterize the probability with a Manhattan distance.
 
 #### 2000 (May): ["The Small-World Phenomenon: An Algorithmic Perspective"](https://www.stat.berkeley.edu/~aldous/Networks/swn-1.pdf)
 
@@ -246,28 +251,28 @@ Where he says directly,
 
 In other words, he defines "navigability" as when a "decentralized
 algorithm can achieve a delivery time [of messages across the network]
-bounded by any polynomial in logN."
+bounded by any polynomial in $$log(n)$$."
 
 And describes his model that identifies when small worlds will be
 navigable:
 
 > A characteristic feature of small-world networks is that their diameter
 > is exponentially smaller than their size, being bounded by a polynomial
-> in logN, where N is the number of nodes. In other words, there is always
-> a very short path between any two nodes. This does not imply, however,
-> that a decentralized algorithm will be able to discover such short
-> paths. My central finding is that there is in fact a unique value of the
-> exponent $$\alpha$$ at which this is possible.
+> in $$log(N)$$, where $$N$$ is the number of nodes. In other words, there
+> is always a very short path between any two nodes. This does not imply,
+> however, that a decentralized algorithm will be able to discover such
+> short paths. My central finding is that there is in fact a unique value
+> of the exponent $$\alpha$$ at which this is possible.
 
 $$\alpha$$ is the new parameter for his model, which modifies $$r$$, where
-$$r$$ functions as the same long-range connection probability $$p$$
-Strogatz used.
+$$r$$ functions as nearly the same long-range connection probability $$p$$
+Strogatz used. (Again, moving from "rewiring" to adding.)
 
 > The network model is derived from an $$n \times n$$ lattice. Each node,
 > $$u$$, has a short-range connection to its nearest neighbours $$(a, b,
 > c, d)$$ and long-range connection to a randomly chosen node, where node
 > $$v$$ is selected with probability proportional to $$r^{1-\alpha}$$,
-> where $$r$$ is the lattice (‘Manhattan’) distance between $$u$$ and
+> where $$r$$ is the lattice ("Manhattan") distance between $$u$$ and
 > $$v$$.
 
 Or in summary:
@@ -304,11 +309,49 @@ structured as regular:
 > their expressiveness is naturally limited by the exact-match interface
 > they provide.
 
-(It was at this point I found myself wondering what was going on with
-locality sensitive hashing at this time as an alternative but it's out of
-scope of my tour right now.)
+#### proximity graphs
+
+Before we continue through the rest of the papers, I think it's helpful to zoom
+back out and visualize what we're doing. Our question is still how to navigate
+through $$d$$ dimensional points to the closest point to our query.
+
+For simplicity, let's think about a 2d image for a moment, and consider
+what pixels are closest to a set of given "seed" pixels. Seed pixels each
+have a color, and if a point is closest to it, it gets colored the same.
+To brute force this, we can just go pixel by pixel and calculate its
+distance to the "seed" pixels. That will produce a Voronoi tessellation:
+
+<img src="/images/voronoi.png" width="250" height="250"/>
+
+In network overlays or our embedding space though, we are not storing and
+searching every possible "pixel," but really just the "seed" ones, and we
+navigate from one of those to the next. We may get dropped in to any seed to
+start. If a node only knows about its own nearest neighbors, we're stuck.
+
+<img src="/images/random_points.png" width="150" height="150"/><img
+src="/images/nearest_n.png" width="150" height="150"/>
+
+We know we need to add edges between the different nearest neighbor groups, but
+how? For example, which of the below options works best?
+
+<img src="/images/mst.png" width="150" height="150"/><img
+src="/images/rel_neighborhood.png" width="170" height="150"/><img
+src="/images/gabriel.png" width="150" height="150"/><img
+src="/images/delaunay.png" width="150" height="150"/>
+
+The Delaunay triangulation is dual to the Voronoi tessellation, so we'll see
+below first how that got used. Ultimately though HNSW actually uses both the
+Delauney triangulation and a relative neighborhood graph. A great deep dive on
+what graphs are used for ANN and why is in the 2021 paper ["A Comprehensive
+Survey and Experimental Comparison of Graph-Based Approximate Nearest Neighbor
+Search"](https://arxiv.org/pdf/2101.12631.pdf).
 
 #### 2006: ["VoroNet: A scalable object network based on Voronoi tessellations"](https://hal.inria.fr/inria-00071210/document)
+
+This paper focuses on $$E^2$$ and cites Kleinberg's work on long-range
+connections, which are tracked as well as a node's Voronoi neighbors. Their
+method for recomputing the Voronoi region is a citation to a paper I couldn't
+access, but I assume is exact.
 
 > VoroNet [is] an object-based peer to peer overlay network relying on
 > Voronoi tessellations [and] differs from previous overlay networks in
@@ -316,25 +359,27 @@ scope of my tour right now.)
 > reflecting the semantics of the application instead of relying on
 > hashing functions.
 
-It's here we actually get something like an embedding vector, just one
-that isn't learned:
+It's here we actually get something recognizable as an embedding vector, too,
+just one that isn't learned:
 
 > The overlay design space is a $$d$$ dimensional space, each dimension
 > representing one attribute. The coordinates of an object in this space
 > are uniquely specified by its values, one for each attribute.
 
-And limited to $$E^2$$.
+The authors continue in the Raynet paper:
 
 #### 2007: ["Peer to peer multidimensional overlays: approximating complex structures"](https://hal.inria.fr/inria-00164667/file/RR-6248.pdf)
 
-This paper starts with the trade-off between expressiveness and efficiency
-quoted above. They note and agree with attempts to make the overlay
-network reflect the application structure, but warn that "the structures
-are however sometimes extremely complex to maintain accurately."
-Naturally, they pursue an approximation.
+> To achieve a structure that permits nearest neighbour and range queries
+> possibilities, peers having close attribute values should be linked to each
+> other in the overlay. [...] This property ensures that a greedy routing
+> process always succeeds, since the distance to the destination point is
+> reduced at each step during the query propagation process. A structure that
+> ensures this property is the Delaunay graph, which is the dual of the Voronoï
+> diagram.
 
-I actually find the description of these two papers by the next paper
-a good summary:
+I found these two papers by the next paper (which is actually by the authors of
+the HNSW paper) from their own origins summary:
 
 > The first structure for solving ANN in $$E^d$$ with topology of small
 > world networks is Raynet. It is an extension of earlier work by the same
@@ -350,6 +395,9 @@ a good summary:
 > approximately using the Monte Carlo method.
 
 #### 2011: ["Approximate Nearest Neighbor Search Small World Approach"](https://www.iiis.org/CDs2011/CD2011IDI/ICTA_2011/PapersPdf/CT175ON.pdf)
+
+Finally we've hit the authors of the eventual HNSW paper, who are responding to
+the above work:
 
 > Raynet is the closest work to ours in terms of general concept. But
 > unlike Raynet, we propose a structure that works with objects from
