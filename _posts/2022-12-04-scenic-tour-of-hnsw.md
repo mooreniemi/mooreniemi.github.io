@@ -210,6 +210,8 @@ question:
 > Rather than using a ring as the basic structure, however, we begin from
 > a two-dimensional grid and allow for edges to be directed.
 
+![](/images/klein-grid.png)
+
 This switch from a ring to a lattice is a generalization that allows him
 to parameterize the probability with a Manhattan distance.
 
@@ -274,21 +276,65 @@ Or in summary:
 > by a clustering exponent, $$\alpha$$, that determines the probability of
 > a connection between two nodes as a function of their lattice distance.
 
-He proved for a 2 dimensional lattice $$\alpha=2$$, and for $$d$$
-dimensional, $$\alpha=d$$.
+He proved for a 2 dimensional lattice $$\alpha=2$$, and for a $$d$$
+dimensional lattice, $$\alpha=d$$.
+
+This work was cited a lot in peer-to-peer (P2P) network literature because
+their essential goal is efficient decentralized access across nodes
+connected by an overlay network. Depending on how this overlay network is
+structured, different access patterns may or may not be efficient.
+
+This is from the 2007 paper below. It's easy to map from overlay network
+structures being described to graph types:
+
+> At one end of the spectrum lie unstructured overlays in which each peer
+> gets connected to a set of arbitrary neighbours. Such networks rely on
+> constrained flooding techniques to search for data. This provides a way
+> to implement all types of search but such approaches often suffer from
+> lack of efficiency. A query may need to ultimately visit the whole
+> network to ensure exhaustive results.
+
+Here you can understand unstructured and "arbitrary" as random, and
+structured as regular:
+
+> Fully structured overlays lie at the other end of the spectrum. In such
+> networks, peers are organized along a precise structure such as a ring.
+> In DHT-based networks, each object gets associated to a given peer. Such
+> networks provide an efficient support for a DHT functionality. However,
+> their expressiveness is naturally limited by the exact-match interface
+> they provide.
+
+(It was at this point I found myself wondering what was going on with
+locality sensitive hashing at this time as an alternative but it's out of
+scope of my tour right now.)
+
+#### 2006: ["VoroNet: A scalable object network based on Voronoi tessellations"](https://hal.inria.fr/inria-00071210/document)
+
+> VoroNet [is] an object-based peer to peer overlay network relying on
+> Voronoi tessellations [and] differs from previous overlay networks in
+> that peers are application objects themselves and get identifiers
+> reflecting the semantics of the application instead of relying on
+> hashing functions.
+
+It's here we actually get something like an embedding vector, just one
+that isn't learned:
+
+> The overlay design space is a $$d$$ dimensional space, each dimension
+> representing one attribute. The coordinates of an object in this space
+> are uniquely specified by its values, one for each attribute.
+
+And limited to $$E^2$$.
 
 #### 2007: ["Peer to peer multidimensional overlays: approximating complex structures"](https://hal.inria.fr/inria-00164667/file/RR-6248.pdf)
 
-For navigability, the literature goes through peer-to-peer (P2P) networks
-because definitionally, with P2P we need **decentralized search**. With
-decentralization, greedy approaches are desirable, because they're using
-_local_ ("who are my immediate peers") not global ("who are all the
-possible peers") information. By the small world constructions above, the
-local information of the node is sufficient for short path guarantees if
-long-range connections meet the right threshold.
+This paper starts with the trade-off between expressiveness and efficiency
+quoted above. They note and agree with attempts to make the overlay
+network reflect the application structure, but warn that "the structures
+are however sometimes extremely complex to maintain accurately."
+Naturally, they pursue an approximation.
 
-I actually find the description of this paper by the next paper somewhat
-more helpful for contextualizing it than reading the original paper:
+I actually find the description of these two papers by the next paper
+a good summary:
 
 > The first structure for solving ANN in $$E^d$$ with topology of small
 > world networks is Raynet. It is an extension of earlier work by the same
@@ -299,7 +345,7 @@ more helpful for contextualizing it than reading the original paper:
 > work of the greedy search algorithm and long - for logarithmic search.
 > Short links correspond to edges of Delaunay graph, i.e. each object has
 > references to objects that are neighbors of its Voronoi region. The main
-> difference of Raynet from Voronet is that in Raynet every object doesn’t
+> difference of Raynet from Voronet is that in Raynet every object doesn't
 > know all of its Voronoi neighbors, i.e. Raynet obtains neighborhood with
 > approximately using the Monte Carlo method.
 
@@ -308,6 +354,18 @@ more helpful for contextualizing it than reading the original paper:
 > Raynet is the closest work to ours in terms of general concept. But
 > unlike Raynet, we propose a structure that works with objects from
 > arbitrary metric spaces.
+
+In other words, VoroNet goes from $$E^2$$ to Raynet in $$E^d$$, but this
+paper extends beyond $$E$$ entirely.
+
+It's fun to read that 5 years before the "Hierarchical" solution they
+champion a non-hierarchical one in this paper, not even focusing on the
+generalization they made beyond $$E^d$$ in the abstract:
+
+> The distinctive feature of our approach is that we build
+> a non-hierarchical structure with possibility of local minimums which
+> are circumvented by performing a series of searches starting from
+> arbitrary elements of the structure.
 
 #### 2013: ["Approximate nearest neighbor algorithm based on navigable small world graphs"](https://publications.hse.ru/pubs/share/folder/x5p6h7thif/128296059.pdf)
 
