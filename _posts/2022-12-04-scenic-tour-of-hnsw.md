@@ -342,26 +342,31 @@ start. If a node only knows about its own nearest neighbors, we're stuck.
 <img src="/images/random_points.png" width="150" height="150"/><img
 src="/images/nearest_n.png" width="150" height="150"/>
 
-We know we need to add edges between the different nearest neighbor groups, but
-how? For example, which of the below options works best?
+We know we need to add edges between the different nearest neighbor
+groups, but how? For example, which of the below options works best for
+search while also allowing for efficient construction?
 
 <img src="/images/mst.png" width="150" height="150"/><img
 src="/images/rel_neighborhood.png" width="170" height="150"/><img
 src="/images/gabriel.png" width="150" height="150"/><img
 src="/images/delaunay.png" width="150" height="150"/>
 
-The Delaunay triangulation is dual to the Voronoi tessellation, so we'll see
-below first how that got used. Ultimately though HNSW actually uses both the
-Delauney triangulation and a relative neighborhood graph. A great deep dive on
-what graphs are used for ANN and why is in the 2021 paper ["A Comprehensive
-Survey and Experimental Comparison of Graph-Based Approximate Nearest Neighbor
+The Delaunay triangulation is dual to the Voronoi tessellation, so we'll
+see below first how that got used in the P2P context, then we'll see how
+an insight by the authors of HNSW led to an extremely simple approximate
+construction algorithm which breaks out of P2P entirely.
+
+For a complete survey on the topic of graphs in ANN I found the 2021 paper
+["A Comprehensive Survey and Experimental Comparison of Graph-Based
+Approximate Nearest Neighbor
 Search"](https://arxiv.org/pdf/2101.12631.pdf).
 
 #### 2006: ["VoroNet: A scalable object network based on Voronoi tessellations"](https://hal.inria.fr/inria-00071210/document)
 
 This paper focuses on $$E^2$$ and cites Kleinberg's work on long-range
-connections, which are tracked as well as a node's Voronoi neighbors. Their
-method for recomputing the Voronoi region is a citation to [a paper I couldn't
+connections, which are tracked _in addition to_ a node's Voronoi
+neighbors. Their method for recomputing the Voronoi region is a citation
+to [a paper I couldn't
 access](https://link.springer.com/chapter/10.1007/3-540-45545-0_10), but
 I assume is exact.
 
@@ -378,8 +383,8 @@ just one that isn't learned:
 > representing one attribute. The coordinates of an object in this space
 > are uniquely specified by its values, one for each attribute.
 
-The authors continue in the Raynet paper, where they pursue an approximation of
-the Voronoi structure:
+The authors continue in the Raynet paper, where they pursue an
+approximation of the Voronoi structure beyond $$E^2$$:
 
 #### 2007: ["Peer to peer multidimensional overlays: approximating complex structures"](https://hal.inria.fr/inria-00164667/file/RR-6248.pdf)
 
@@ -394,9 +399,10 @@ the Voronoi structure:
 > RayNet is achieved by choosing the shortcuts according to a distribution
 > advocated by Kleinberg. Both links are created by gossip-based protocols. 
 
-I found these two papers by the next paper (which is actually by the authors of
-the HNSW paper) from their own origins summary which leaves out the
-gossip-based aspect:
+I found these two papers by the next paper (which is actually by the
+authors of the HNSW paper). Their summary of this work doesn't mention the
+gossip-based protocols though, emphasizing instead the Monte-Carlo
+approximation:
 
 > The first structure for solving ANN in $$E^d$$ with topology of small
 > world networks is Raynet. It is an extension of earlier work by the same
@@ -420,19 +426,18 @@ the above work:
 > unlike Raynet, we propose a structure that works with objects from
 > arbitrary metric spaces.
 
-In other words, VoroNet goes from $$E^2$$ to Raynet in $$E^d$$, but this
+In other words, VoroNet goes from $$E^2$$ to Raynet in $$E^d$$, while this
 paper extends beyond $$E$$ entirely.
 
 It's fun to read that 5 years before the "Hierarchical" solution they
-champion a non-hierarchical one in this paper, not even focusing on the
-generalization they made beyond $$E^d$$ in the abstract:
+start from a non-hierarchical one in this paper:
 
 > The distinctive feature of our approach is that we build
 > a non-hierarchical structure with possibility of local minimums which
 > are circumvented by performing a series of searches starting from
 > arbitrary elements of the structure.
 
-Which they make precise with:
+Which they make precise with ($$m$$ is the search attempts):
 
 > If probability to find true closest in one search attempt is $$p$$ then
 > probability to find the same element in search attempts is $$1-(1-p)^m$$, so
@@ -457,13 +462,15 @@ it in the two papers below), but they mention it wasn't new to them in 2011:
 > proposed algorithm has properties of small world network if elements arrive
 > in random order.
 
-This 2011 paper is not cited by the authors, instead the next 2012 paper seems
-to rewrite this one, with some more plots, and get cited thereafter.
+This is really the big insight of their work that leads eventually to
+HNSW. This 2011 paper is not cited by the authors, instead the next 2012
+paper seems to rewrite this one, with some more plots, and get cited
+thereafter.
 
 #### 2012: ["Scalable Distributed Algorithm for Approximate Nearest Neighbor Search Problem in High Dimensional General Metric Spaces"](https://www.hse.ru/data/2013/10/01/1277293157/Sisap%202012%20Scalable%20Distributed%20Algorithm%20for%20Approximate%20Nearest.pdf)
 
-The description of construction (adding nodes) is a bit tighter in this paper,
-so I'll focus on the key insight here and in the next paper, though it
+The description of construction (adding nodes) is a bit tighter here, so
+I'll focus on the key insight here and in the next paper, though it
 pre-dates this publication:
 
 > We propose to assemble the structure by adding elements one by one and
@@ -488,8 +495,9 @@ kind of shortcuts we want to be a small world!
 
 #### 2013: ["Approximate nearest neighbor algorithm based on navigable small world graphs"](https://publications.hse.ru/pubs/share/folder/x5p6h7thif/128296059.pdf)
 
-Having read the VoroNet and Raynet papers, seeing just how simple this solution
-ultimately was really felt elegant to me:
+Having read the fairly complex methods in the VoroNet and Raynet papers,
+seeing just how simple this solution ultimately was really felt elegant to
+me:
 
 > The navigable small world is created simply by keeping old Delaunay graph
 > approximation links produced at the start of construction.
@@ -498,8 +506,7 @@ I can't get over this. They basically noticed that they could get exactly what
 they wanted, for free, by doing it the simple way. "One man's trash is another
 man's treasure."
 
-In this paper, we switch from $$k$$ to $$w$$. If you're coming from Faiss,
-you'll recognize $$w$$ below as `efConstruct`.
+In this paper, we switch from $$k$$ to $$w$$.
 
 > The parameter $$w$$ affects how accurate is determination (recall) of nearest
 > neighbors in the construction algorithm [2012 paper above]. Like in Section
