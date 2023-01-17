@@ -6,29 +6,28 @@ usemathjax: true
 toc: true
 ---
 
+HNSW, which stands for "Hierarchical Navigable Small World" (graphs), is one of
+the first data structures for which I read not just its paper but (a lot of)
+the trail of papers backward in time until I arrived at one with a name
+I already knew. [WIP Post - 01/16/23]
+
 ### the goal and structure of this tour
 
-[WIP Post - 01/16/23] HNSW, which stands for "Hierarchical Navigable Small
-World" (graphs), is one of the first data structures for which I read not just
-its paper but (a lot of) the trail of papers backward in time until I arrived
-at one with a name I already knew.
-
 I took these notes for myself to capture my own understanding. I think they're
-a decent path to retread for others, but if you just want to understand how
-HNSW works or how to use it, I'd sooner recommend [Pinecone's
-guide](https://www.pinecone.io/learn/hnsw/). Similarly, I'd actually sooner
-recommend the first few chapters of Oskar Sandberg's thesis [Searching in
-a Small World](https://freenetproject.org/papers/lic.pdf) than my notes to take
-you through up to the section covering P2P networks (~2006).
+a decent path to retread for others, but if your goal is _just_ to understand
+how HNSW works or how to use it, I'd sooner recommend [Pinecone's
+guide](https://www.pinecone.io/learn/hnsw/).
 
-Because of my background in search, I start with inverted indices to ground and
-contrast approximate nearest neighbors search. Then I work the name "HNSW"
-backwards, moving from 1998 through to 2016 when the main paper is published.
+Because of my background in search, I start with inverted indices to
+ground and contrast approximate nearest neighbors search. Then I work the
+name "HNSW" backwards, moving from 1998 through to 2016 when the main
+paper is published.
 
 #### my hnsw tl;dr
 
-- We want to query without exact matching between query and document, so we
-  model querying as a space where matching is distance.
+- We want to query with strictly more expressiveness than exact matching
+  between query and document, so we embed queries and documents into a space
+  where matching is distance.
 - We want to calculate distances between our query and our documents as quickly
   as possible, so we pre-calculate an approximate proximity graph of our
   documents to each other. It turns out if we simply save the "garbage" links
@@ -53,50 +52,49 @@ information calculated by a deep neural network, as is done in [deep
 impact](https://arxiv.org/abs/2104.12016).
 
 To move to [k Nearest Neighbors
-(KNN)](https://www.youtube.com/watch?v=HVXime0nQeI&ab_channel=StatQuestwithJoshStarmer),
-that is, the setting in which HNSW is a meaningful approximation (thus ANN
-for _Approximate_ Nearest Neighbors), we first move into embedding space.
+(KNN)](https://www.youtube.com/watch?v=HVXime0nQeI&ab_channel=StatQuestwithJoshStarmer)
+and its approximations, we need to represent our queries and documents
+differently. Each document has to be encoded into a vector which represents its
+coordinates in embedding space. A distance function can then measure similarity
+between documents as closeness in space. Deep neural networks are
+generally used now to learn this "embedding" vector.
 
-Each document has to be encoded into a vector which represents its
-coordinates in embedding space. A distance function can then measure
-similarity between documents as closeness in space. Deep neural networks
-are generally used now to learn this "embedding" vector. To find the
-closest documents to a query, we'd need to exhaustively calculate the
-distance between each. Since this can be slow and expensive at large
-corpus sizes, it can be worthwhile to construct additional data structures
-to speed up navigation through the space. (Paying the cost in [update and
-memory to speed up
-read](https://stratos.seas.harvard.edu/files/stratos/files/rum.pdf).) For
-that purpose, HNSW is set of proximity graphs from less to more granular.
+To find the closest documents to a query, we'd need to exhaustively
+calculate the distance between each. Since this can be slow and expensive
+at large corpus sizes, it can be worthwhile to construct additional data
+structures to speed up navigation through the space, which is where HNSW
+fits in.
 
-HNSW can be used directly on a set of embeddings, which is common for data
-sets with only a few million documents, or it can be used with clustering.
+For sets in the millions to low tens of millions, it's common to use
+HNSW directly. For sets above tens of millions, it's more common to see
+clustering applied first, and then HNSW applied _to the clusters_. In the
+ANN context, this clustering (whether or not HNSW is employed to speed it
+up), is called the Inverted File Index or IVF.
 
-#### an aside: ann clustering vs inverted indices
+#### a practical aside: ann inverted file format vs inverted indices
 
-In HNSW deployments larger than a few million documents, clustering of
-some kind is typically used.
-
-As with topic sharding in traditional search, a technique to trade recall
-for latency is to cluster similar things together and route the query only
-to the most "promising" clusters. Commonly we'll see
+As with topic sharding in traditional search, clustering is a technique to
+trade recall for latency by grouping similar things together and routing the
+query only to the most "promising" clusters. Commonly we'll see
 [k-means](https://www.youtube.com/watch?v=4b5d3muPQmA&ab_channel=StatQuestwithJoshStarmer)
-used for document vectors, then we average each of those clusters to
-produce averaged "prototype" vectors. If you squint, you can see we use
-these prototype vectors much like terms in something like an inverted
-index.
+used for document vectors, then we average each of those clusters to produce
+averaged "prototype" vectors. If you squint, you can see we use these prototype
+vectors much like terms in an inverted index.
 
 ![](/images/lex-ann.png)
 
-Although we have something "like" an inverted index, an obvious difference
-is that we have an added step because we can't do $$O(1)$$ key lookups
-since our query does not necessarily equal any prototype or document
-vector. With an inverted index, as soon as we have tokenized `"cats and
-dogs"` to `["cat", "dog"]` we can use the tokens as keys directly to the
-lists of document values, which are called posting lists. In ANN, we must
-first rank the cluster prototypes against the query, and only then, for
-the top clusters, we rank their members. In the below, the "blue box" for
-ANN is that set of "prototype" vectors representing each of the clusters.
+Although with IVF, we have something "like" an inverted index, an obvious
+difference is that we have an added step because we can't do $$O(1)$$ key
+lookups since our query does not necessarily equal any prototype or document
+vector. With an inverted index, as soon as we have tokenized `"cats and dogs"`
+to `["cat", "dog"]` we can use the tokens as keys directly to the lists of
+document values, which are called posting lists. In ANN, we must first rank the
+cluster prototypes against the query, and only then, for the top clusters, we
+rank their members.
+
+In the below, the "blue box" for ANN is that set of "prototype" vectors
+representing each of the clusters. To speed up the prototype ranking, we
+can index the entire "blue box" into an HNSW index.
 
 ![](/images/lex-ann-2.png)
 
@@ -104,19 +102,23 @@ If you've worked with it, you've probably noticed many [`index_factory`
 settings in
 Faiss](https://github.com/facebookresearch/faiss/wiki/The-index-factory)
 _start_ with `HNSW`, but it can mean more than one thing. If clustering is
-being done, they're laying out how the blue box should be indexed, whereas
-if clustering was not done then they're laying out how the concatenated
-red boxes should be indexed.
+being done, they're laying out how the blue box should be indexed, whereas if
+clustering was not done (not pictured) then they're laying out how all the
+embeddings should be indexed.
 
-Looking at the above pictures, you can get some intuition for how you need
-to balance the number of clusters with balance across the clusters. (It's
-actually pretty easy to hit pathological clustering where one cluster has
-many more members than any other.) Deployments I've seen prefer a "long"
-blue box with an HNSW data structure to navigate it, signifying many
-clusters, with relatively "short" red boxes. `k` (or `efSearch`) is the
-number of top clusters from the blue box and each of which returns a red
-box that is scored exactly and exhaustively. In the runtime, `k` is tuned
-to find the best operating point between recall and latency.
+Looking at the above pictures, you can get some intuition for how you need to
+balance the number of clusters (we could say "height" of the IVF) with
+balance across the length if the cluster memberships ("width" of the IVF).
+Deployments I've seen prefer a "long" blue box with an HNSW data structure
+to navigate it, signifying many clusters, with relatively "short" red
+boxes. `k` (or `efSearch`) is the number of top clusters from the blue box
+and each of which returns a red box that is scored exactly and
+exhaustively. In the runtime, `k` is tuned to find the best operating
+point between recall and latency.
+
+With this structure, it's possible to serve a lot of embeddings, since the
+HNSW index of the prototypes can be kept resident in memory, with the
+cluster member lists memory mapped on disk.
 
 ### the irl origins of hnsw
 
@@ -125,9 +127,9 @@ on lightly here and not in the rest of this tour, is that many of them
 refer to a "real life" phenomenon: [the six degrees of separation
 experiments run by Milgram in the
 1960s](https://en.wikipedia.org/wiki/Six_degrees_of_separation#Small_world).
-(Which were actually proceeded by [Manfred Kochen's Monte Carlo
-simulations](https://deepblue.lib.umich.edu/bitstream/handle/2027.42/23764/0000737.pdf)
-that predicted three degrees.)
+If you're interested in this angle, I'd recommend the first few chapters
+of Oskar Sandberg's thesis [Searching in a Small
+World](https://freenetproject.org/papers/lic.pdf).
 
 Why was it possible that people using only "local" information (who they
 knew directly) were able to get a message through across a "global" space
@@ -137,12 +139,12 @@ This is actually a very similar question to the one we're trying to figure
 out with ANN indexing: if you have a set of $$n$$ dimensional points, what
 information do we need to "navigate" around them quickly?
 
-In fact, it turns out the term "navigable" in "Hierarchical Navigable
-Small World Graphs" actually has a precise meaning, as does the mysterious
-and almost informal sounding "small world." In order, the title is
-actually the reverse chronology of the concepts. Since graphs go back to
-1736, we'll skip ahead to the 90s and start with "small world," just
-pausing to note the features of graphs needed to understand.
+In fact, it turns out the term "navigable" in "Hierarchical Navigable Small
+World Graphs" has a precise meaning, as does the mysterious and almost
+informal sounding "small world." In order, the title is actually the reverse
+chronology of the concepts. Since graphs go back to 1736, we'll skip ahead to
+the 90s and start with "small world," just pausing to note the features of
+graphs needed to understand.
 
 ### graphs, at sea level
 
@@ -217,8 +219,8 @@ it's the trade-off between clustering and path length.
 
 ### 2/3rds of the way up, navigable
 
-After Strogatz, Kleinberg picks up and changes the geometry of the
-question:
+In conversation with Strogatz, Kleinberg picks up and changes the geometry
+of the question:
 
 > Rather than using a ring as the basic structure, however, we begin from
 > a two-dimensional grid and allow for edges to be directed.
@@ -443,7 +445,7 @@ They do this because:
 > variant of the complete graph) [so] we cannot avoid the existence of local
 > minimums [unless we start from multiple random origin points]
 
-One tiny dead-end I had here is that this paper cites two papers I couldn't
+One dead-end I had here is that this paper cites two papers I couldn't
 find online for how they conceived of the Delaunay construction algorithm, in
 2008: "Metrized Small World Properties Data Structure" and in 2009:
 "Single-attribute Distributed Metrized Small World Data Structure." That's too
@@ -474,12 +476,15 @@ pre-dates this publication:
 > which approximate the Delaunay graph.
 
 That is, to construct a new node, we basically do a greedy search of the
-existing nodes. 
+existing nodes. "Hmm," you might say here, "isn't that bad? Won't that
+mean our initial set of links include some that can't possibly be
+nearest?"
 
-Something **really** clever happened here: they realized that when constructing
-the Delaunay graph randomly like this, some long-range links are created at the
-beginning that don't represent the actual _nearest_ neighbors but instead
-exactly the kind of shortcuts we want to be a small world!
+Somewhere in here something **really** clever happened: they realized that
+when constructing the Delaunay graph randomly like this, the fact that
+some long-range links are created at the beginning that don't represent
+the actual _nearest_ neighbors is **good** because they're exactly the
+kind of shortcuts we want to be a small world!
 
 #### 2013: ["Approximate nearest neighbor algorithm based on navigable small world graphs"](https://publications.hse.ru/pubs/share/folder/x5p6h7thif/128296059.pdf)
 
@@ -493,7 +498,7 @@ I can't get over this. They basically noticed that they could get exactly what
 they wanted, for free, by doing it the simple way. "One man's trash is another
 man's treasure."
 
-In this paper, we switch from $$k$$ to $$w$$. If you're coming from FAISS,
+In this paper, we switch from $$k$$ to $$w$$. If you're coming from Faiss,
 you'll recognize $$w$$ below as `efConstruct`.
 
 > The parameter $$w$$ affects how accurate is determination (recall) of nearest
@@ -539,7 +544,7 @@ to predict observations about living systems.
 
 ### the summit: adding hierarchy
 
-We've spent almost 15 years just in navigability!
+We've spent like 15 years just in navigability of small worlds!
 
 Though I think arguably the authors had basically everything they needed in
 2011 (maybe even 2008) except for the idea of a skip list (a [1990 paper
@@ -564,21 +569,51 @@ them.
 
 ![](/images/skip-list.png)
 
-The HNSW hierarchy is of proximity graphs rather than lists, so it looks like
-this:
+The HNSW hierarchy is layers of proximity graphs rather than layers of
+lists, so it looks like this:
 
 ![](/images/hnsw-layers.png)
 
-This paper focuses on how to sample into these layers, which adds a new
-parameter to tune, and compares against many other implementations in
-[ann-benchmarks.com](http://ann-benchmarks.com/).
+This paper focuses on how to sample into these layers, tune its new
+parameters (more on this below), and compare against many other
+implementations in [ann-benchmarks.com](http://ann-benchmarks.com/).
+I perceive now (2022/2023) that Faiss is almost synonymous with its own
+HNSW implementation, but at the time the benchmark compared HNSW to
+Faiss's [Inverted Multi-Index
+("IMI")](https://ieeexplore.ieee.org/abstract/document/6248038).
 
-One offhand comment in this paper caught my curiosity for another time, their
-own analysis on the Delaunay graph approximation only went up to $$d$$ of 128.
-Beyond that:
+![](/images/hnsw-v-imi.png)
 
-> Further [analytical] evidence is required to confirm whether the resilience
-> of Delaunay graph [approximations] generalizes to higher dimensional spaces.
+Given that IMI is using quantization, it's very impressive how much faster
+HNSW is while also _gaining_ recall. Typically you do expect removing
+quantization to help recall, but also to slow things down.
 
-Given we commonly see 256, 1024 and higher dimension embeddings now, I wonder
-what level of error we get there.
+HNSW was also, of course, much faster than NSW.
+
+> The distinctions from NSW (along with some queue optimizations) are: 1)
+> the enter point is a fixed parameter; 2) instead of changing the number
+> of multi-searches, the quality of the search is controlled by
+> a different parameter `ef` (which was set to $$K$$ in NSW).
+
+The construction algorithm takes on new parameters that include:
+
+> The maximum number of connections that an element can have per layer is
+> defined by the parameter $$M_{max}$$ for every layer higher than zero (a
+> special parameter $$M_{max0}$$ is used for the ground layer separately).
+
+This parameterization yields some recognizable forms at minimum and
+maximum values:
+
+> Algorithm construction parameters $$m_L$$ and $$M_{max0}$$ are
+> responsible for maintaining the small world navigability in the
+> constructed graphs. Setting $$m_L$$ to zero (this corresponds to
+> a single layer in the graph) and $$M_{max0}$$ to $$M$$ leads to
+> production of directed k-NN graphs with a power-law search complexity
+> well studied before (assuming using the alg. 3 for neighbor selection).
+> Setting $$m_L$$ to zero and $$M_{max0}$$ to infinity leads to production
+> of NSW graphs with polylogarithmic complexity. Finally, setting $$m_L$$
+> to some non-zero value leads to emergence of controllable hierarchy
+> graphs which allow logarithmic search complexity by introduction of
+> layers (see the Section 3).
+
+That is, $$m_L$$ at some "in between" value gives us HNSW.
