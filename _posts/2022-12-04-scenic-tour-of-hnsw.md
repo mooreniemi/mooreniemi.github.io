@@ -600,13 +600,19 @@ HNSW was also, of course, much faster than NSW.
 > The distinctions from NSW (along with some queue optimizations) are: 1)
 > the enter point is a fixed parameter; 2) instead of changing the number
 > of multi-searches, the quality of the search is controlled by
-> a different parameter `ef` (which was set to $$K$$ in NSW).
+> a different parameter `ef` (which was set to `K` in NSW).
 
-The construction algorithm takes on new parameters that include:
+The construction algorithm takes on new parameters that extend $$M$$ (how
+many nearest neighbors a node is connected to) to per layer values:
 
 > The maximum number of connections that an element can have per layer is
 > defined by the parameter $$M_{max}$$ for every layer higher than zero (a
 > special parameter $$M_{max0}$$ is used for the ground layer separately).
+
+What maximum layer/level a node (embedding) appears in is $$l$$ which:
+
+> is randomly selected with an exponentially decaying probability
+> distribution (normalized by the $$m_L$$ parameter)
 
 This parameterization yields some recognizable forms at minimum and
 maximum values:
@@ -623,4 +629,25 @@ maximum values:
 > graphs which allow logarithmic search complexity by introduction of
 > layers (see the Section 3).
 
-That is, $$m_L$$ at some "in between" value gives us HNSW.
+That is, $$m_L$$ at some "in between" value gives us HNSW. They go on to
+motivate their choice for the optimal value:
+
+> A simple choice for the optimal $$m_L$$ is $$1/ln(M)$$, this corresponds
+> to the skip list parameter $$p=1/M$$ with an average single element
+> overlap between the layers.
+
+They note the "only meaningful construction parameter left for the user is
+$$M$$" to tune recall. They note it "also defines the memory consumption
+of the algorithm (which is proportional to $$M$$), so it should be
+selected with care." But I found this section slightly confusing because
+in the next paragraph they mention `efConstruction`, which is also exposed
+to the user. What's the difference? $$M$$ is the number of links formed
+between nodes, while `efConstruction` is the "size of the dynamic
+candidate list" in `INSERT`. Consider that you might want to keep a long
+candidate list as you explore, but ultimately only store a top subset of
+that as links.
+
+If you've only ever used HNSW at runtime, not indexing, you may be
+confused that the word `efSearch` doesn't appear in this paper. Instead
+just `ef` appears, like `efConstruction` defined as the "size of the
+dynamic candidate list," here parameterizing the `K-NN-SEARCH` algorithm.
