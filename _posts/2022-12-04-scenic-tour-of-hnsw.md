@@ -475,13 +475,14 @@ I'll focus on the key insight here and in the next paper, though it
 pre-dates this publication:
 
 > We propose to assemble the structure by adding elements one by one and
-> connecting them on each step with the $$k$$ closest objects which are already
-> in the structure. It is based on the idea that intersection of the set of
-> elements which are Voronoi neighbors and the $$k$$ closest elements should be
-> large. [...] A graph created by such algorithm with data arriving in random
-> order has small world navigation properties without any additional
-> algorithms. That allows us to fully concentrate on the short-range links
-> which approximate the Delaunay graph.
+> connecting them on each step with the $$k$$ [NB. this parameter
+> eventually becomes `M`] closest objects which are already in the
+> structure. It is based on the idea that intersection of the set of
+> elements which are Voronoi neighbors and the $$k$$ closest elements
+> should be large. [...] A graph created by such algorithm with data
+> arriving in random order has small world navigation properties without
+> any additional algorithms. That allows us to fully concentrate on the
+> short-range links which approximate the Delaunay graph.
 
 That is, to construct a new node, we basically do a greedy search of the
 existing nodes. "Hmm," you might say here, "isn't that bad? Won't that
@@ -507,24 +508,15 @@ I can't get over this. They basically noticed that they could get exactly what
 they wanted, for free, by doing it the simple way. "One man's trash is another
 man's treasure."
 
-In this paper, we switch from $$k$$ to $$w$$.
+Parameters are named somewhat differently at this point but are
+recognizable:
 
-> The parameter $$w$$ affects how accurate is determination (recall) of nearest
-> neighbors in the construction algorithm [2012 paper above]. Like in Section
-> 4.2, setting $$w$$ to a big number is equivalent to exhaustive search of the
-> closest elements in the structure resulting in a perfect recall. The idea is
-> to set $$w$$ big enough to have the recall close to unity (e.g. 0.95– 0.99).
-> Smaller recall will create a fraction of wrong links which solely increase
-> complexity of the algorithm, while our experiments indicate that increasing
-> recall at insertion higher than 0.99 have no measurable effect on the search
-> quality.
-
-The abstract also mentions the performance, which is impressive:
-
-> Only 0.03% of the 10 million 208-dimensional vector dataset is needed to be
-> evaluated to achieve 0.999 recall (virtually exact search). For recall 0.93
-> processing speed 2800 queries/s can be achieved on a dual Intel X5675 Xenon
-> server node with Java implementation.
+> The parameter $$w$$ [NB. this parameter eventually becomes
+> `efConstruction`] affects how accurate is determination (recall) of
+> nearest neighbors in the construction algorithm [2012 paper above]. Like
+> in Section 4.2, setting $$w$$ to a big number is equivalent to
+> exhaustive search of the closest elements in the structure resulting in
+> a perfect recall.
 
 #### 2016: ["Growing Homophilic Networks Are Natural Navigable Small Worlds"](https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0158162)
 
