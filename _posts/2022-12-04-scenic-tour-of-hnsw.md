@@ -9,7 +9,7 @@ toc: true
 HNSW, which stands for "Hierarchical Navigable Small World" (graphs), is one of
 the first data structures for which I read not just its paper but (a lot of)
 the trail of papers backward in time until I arrived at one with a name
-I already knew. [WIP Post - 01/16/23]
+I already knew. [WIP Post - 01/17/23]
 
 ### the goal and structure of this tour
 
@@ -30,12 +30,13 @@ paper is published.
   where matching is distance.
 - We want to calculate distances between our query and our documents as quickly
   as possible, so we pre-calculate an approximate proximity graph of our
-  documents to each other. It turns out if we simply save the "garbage" links
-  we produce at the beginning of this graph construction, our graph actually
-  becomes better for searching efficiently. (This is the navigable small world
-  part.)
-- We want to go even faster, so we stack proximity graphs from coarse to fine
-  grained. (This is the hierarchical part.)
+  documents to each other. It turns out if we rely on random insertion, we
+  can simply save the "garbage" links we produce at the beginning of this
+  graph construction, and our graph actually becomes better for searching
+  efficiently. (This is the navigable small world part.)
+- We want to go even faster, so we double down on randomness, but this
+  time via inspiration from skip-lists, and stack proximity graphs from
+  coarse to fine grained. (This is the hierarchical part.)
 
 ### inverted indices to ann
 
@@ -553,49 +554,57 @@ to predict observations about living systems.
 
 We've spent like 15 years just in navigability of small worlds!
 
-Though I think arguably the authors had basically everything they needed in
-2011 (maybe even 2008) except for the idea of a skip list (a [1990 paper
-introduces](https://15721.courses.cs.cmu.edu/spring2017/papers/07-oltpindexes1/pugh-skiplists-cacm1990.pdf))
-to replace the multi-search approach, it's not until 2016 that we finally see
-the HNSW paper appear.
+Though I think arguably the authors had basically everything they needed
+in 2011 (maybe even 2008) except for the idea of a skip-list to replace
+the multi-search approach, it's not until 2016 that we finally see the
+HNSW paper appear.
+
+I have to mention here that I was introduced to Bill Pugh's work first
+through wrestling with getting Fortify and FindBugs to work in an internal
+build system before learning about his [1990 paper introducing
+skip-lists](https://15721.courses.cs.cmu.edu/spring2017/papers/07-oltpindexes1/pugh-skiplists-cacm1990.pdf).
+That paper is considerably more fun.
+
+If you're not familiar
+[skip-lists](https://en.wikipedia.org/wiki/Skip_list), which are
+essentially a probabilistic alternative to trees, a picture can help you
+see how their hierarchy works to speed up search. In this example, we're
+searching for the leaf node `24` by comparing with elements in "express
+lanes" that are randomly sampled sub-lists of the list "lanes" or "levels"
+directly below them.
+
+![](/images/skip-list.png)
 
 #### 2016: ["Efficient and robust approximate nearest neighbor search using Hierarchical Navigable Small World graphs"](https://arxiv.org/abs/1603.09320)
 
-(Note: initially published in 2016, with revisions up to 2018.)
+(Note: The paper was initially published in 2016, with revisions up to
+2018.)
 
 > Hierarchical NSW incrementally builds a multi-layer structure consisting
 > from hierarchical set of proximity graphs (layers) for nested subsets of
 > the stored elements.
-
-I think it's helpful here to glance at a simpler [skip
-list](https://en.wikipedia.org/wiki/Skip_list) for a picture of how this
-hierarchy works to speed up search. In this example, we're searching for the
-leaf node `24` by comparing with elements in probabilistically constructed
-"express lanes" that are subsets of the list "lane" or "level" directly below
-them.
-
-![](/images/skip-list.png)
 
 The HNSW hierarchy is layers of proximity graphs rather than layers of
 lists, so it looks like this:
 
 ![](/images/hnsw-layers.png)
 
-This paper focuses on how to sample into these layers, tune its new
-parameters (more on this below), and compare against many other
-implementations in [ann-benchmarks.com](http://ann-benchmarks.com/).
-I perceive now (2022/2023) that Faiss is almost synonymous with its own
-HNSW implementation, but at the time the benchmark compared HNSW to
-Faiss's [Inverted Multi-Index
+The paper compares against many other implementations in
+[ann-benchmarks.com](http://ann-benchmarks.com/). I perceive now
+(2022/2023) that Faiss is almost synonymous with its own HNSW
+implementation, but at the time the benchmark compared HNSW to Faiss's
+[Inverted Multi-Index
 ("IMI")](https://ieeexplore.ieee.org/abstract/document/6248038).
 
 ![](/images/hnsw-v-imi.png)
 
 Given that IMI is using quantization, it's very impressive how much faster
 HNSW is while also _gaining_ recall. Typically you do expect removing
-quantization to help recall, but also to slow things down.
+quantization to help recall, but also to slow things down. Knowing what
+I know now about ANN, I can imagine how exciting this paper was to read
+when it came out.
 
-HNSW was also, of course, much faster than NSW.
+HNSW was also much faster than NSW.
 
 > The distinctions from NSW (along with some queue optimizations) are: 1)
 > the enter point is a fixed parameter; 2) instead of changing the number
