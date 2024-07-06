@@ -19,7 +19,7 @@ Here's an example of Wrong and Right.
 
 Wrong [in Rust playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=9fbb0b9bd0ae70f820deee635d11f6cb):
 
-```
+```rust
 use std::time::Instant;
 use tokio::time::{sleep, Duration};
 
@@ -71,7 +71,7 @@ Total execution time: 15.000760031s
 
 Now here's Right [in a Rust playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=3a9711e05ac38a2a2b4741a36482a156), note the use of `spawn_blocking` to essentially cordon this task to another thread:
 
-```
+```rust
 use std::time::Instant;
 use tokio::task;
 use tokio::time::{sleep, Duration};
