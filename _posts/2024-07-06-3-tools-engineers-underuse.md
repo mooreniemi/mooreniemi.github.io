@@ -1,3 +1,9 @@
+---
+layout: post
+title: 3 tools engineers underuse
+date: 2024-07-06 12:08 -0400
+---
+
 There's many tools engineers underuse, but I want to pick on three I don't
 see discussed often: dates, affect, and agency.
 
@@ -168,11 +174,9 @@ I like this framing because you may be waiting for something to tell you
 how to act, but you can already take actions of the form "how can I take
 a measurement here to understand the situation?" You'll be taking an
 action that has a result you can interpret for your next action. It's
-a good feedback loop. If you can't think of any good ideas, give yourself
-permission to use your first bad idea.
+a good feedback loop.
 
----
-layout: post
-title: 3 tools engineers underuse
-date: 2024-07-06 12:08 -0400
----
+If you can't think of any good ideas, give yourself permission to use your
+first bad idea. Perfectionism is its own excuse to be overwhelmed and
+abdicate agency.
+

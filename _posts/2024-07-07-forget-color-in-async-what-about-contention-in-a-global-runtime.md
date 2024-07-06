@@ -1,3 +1,9 @@
+---
+layout: post
+title: forget color in async, what about contention in a global runtime
+date: 2024-07-07 14:21 -0400
+---
+
 There's a now famous
 [rant](https://journal.stuffwithstuff.com/2015/02/01/what-color-is-your-function/)
 on async I read some years ago before I worked with async much. My main
@@ -159,8 +165,3 @@ generate benchmark code per function such that their performance
 characteristics could be known and force handling by dedicated resources.
 Does such a thing exist?
 
----
-layout: post
-title: forget color in async, what about contention in a global runtime
-date: 2024-07-07 14:21 -0400
----
