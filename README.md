@@ -1,6 +1,15 @@
 # [mooreniemi.github.io](http://mooreniemi.github.io/)
 
+## pre-req
+
+```
+rm -rf .bundle Gemfile.lock
+bundle install
+```
+
 ## process
+
+NOTE: You may need to do `bundle exec jekyll`.
 
 ```
 jekyll post NAME
