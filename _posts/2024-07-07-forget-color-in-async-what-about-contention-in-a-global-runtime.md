@@ -69,7 +69,7 @@ Blocking task 4 completed
 Total execution time: 15.000760031s
 ```
 
-Now here's Right [in a Rust playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=3a9711e05ac38a2a2b4741a36482a156):
+Now here's Right [in a Rust playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2021&gist=3a9711e05ac38a2a2b4741a36482a156), note the use of `spawn_blocking` to essentially cordon this task to another thread:
 
 ```
 use std::time::Instant;
@@ -126,19 +126,19 @@ Blocking task 5 completed
 Total execution time: 5.001713304s
 ```
 
-As [Alice](https://ryhl.io/blog/async-what-is-blocking/) instructs:
+As Alice [in a post you should also read](https://ryhl.io/blog/async-what-is-blocking/) instructs:
 
 > If you remember only one thing from this article, this should be it:
 > Async code should never spend a long time without reaching an `.await`.
 
 Why is this? Because tokio is "load-balancing" your async function calls
 as tasks across the worker threads that it manages. The runtime is calling
-`poll` on the task and looking for one of two statuses: `Ready`, or
-`Pending`. `Ready` is simple enough, it finished. But for a task to give
+`poll` on the task and looking for one of two statuses: `Ready<T>`, or
+`Pending`. `Ready<T>` is simple enough, it finished, here's `T`. But for a task to give
 back `Pending`, it needed to `yield` somewhere. Let's synonymize `yield`
 to `go_check_all_other_functions` -- then when you run a blocking function
 inside async you're putting the `go_check_all_other_functions` all the way
-at the end of the blocking function's work. There is no point to
+at the end of the blocking function's work. There is no meaningful point to
 interleave other work.
 
 Functions don't have color, but they do have _size_ or _weight_. When you
@@ -151,11 +151,11 @@ lane, car lane, and a bicycle lane. If you put a bus in each of the lanes,
 you're definitely slowing down the cars and bicycles. If you keep the
 buses in the bus lane, only that lane is slowed down by the extra stops.
 
-What I find challenging with async over time is actually that we _don't_
+In my simple example above, you can pretty easily spot this obvious slow code. But in the wild, you won't have this level of visibility across your whole call stack. So what I find challenging with async over time is actually that we _don't_
 have something like a _size_ or _weight_ of the function, that is, color
 is opt-in and best-effort by a human. It's not hard for someone new to the
 codebase to introduce a slowdown by not wrapping something in
-`spawn_blocking`. And there's no easy way to diagnose these -- yes, [tokio
+`spawn_blocking`. And there's no easy way to diagnose these. Yes, [tokio
 console](https://github.com/tokio-rs/console) exists, but in my
 experience, it isn't really workable for production where I actually see
 conditions of higher contention.
