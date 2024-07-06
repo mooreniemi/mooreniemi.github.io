@@ -121,7 +121,7 @@ differently now."
 
 How does one become more effective? I don't think it is something that is
 only done "to" you by others. Ultimately you become more effective because
-you exercises your own agency somehow.
+you exercise your own agency somehow.
 
 I firmly believe people can be taught to have more agency. The biggest
 blocker in having agency is simply wanting it at all.
