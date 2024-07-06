@@ -1,5 +1,5 @@
 There's many tools engineers underuse, but I want to pick on three I don't
-see discussed often.
+see discussed often: dates, affect, and agency.
 
 # dates
 
