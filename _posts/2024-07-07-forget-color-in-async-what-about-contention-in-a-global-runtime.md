@@ -139,7 +139,7 @@ back `Pending`, it needed to `yield` somewhere. Let's synonymize `yield`
 to `go_check_all_other_functions` -- then when you run a blocking function
 inside async you're putting the `go_check_all_other_functions` all the way
 at the end of the blocking function's work. There is no meaningful point to
-interleave other work.
+interleave other work. Ultimately, what can `yield` is bounded by the [asynchronous primitives actually available to you](https://www.youtube.com/watch?v=o2ob8zkeq2s&t=3960s).
 
 Functions don't have color, but they do have _size_ or _weight_. When you
 use a global runtime which is premised on the benefits of being able to
