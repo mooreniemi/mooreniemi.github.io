@@ -71,9 +71,9 @@ They just show that **given this topology**, this model predicts there is an opt
 
 When Elasticsearch receives a request at a [coordinating node](https://www.elastic.co/guide/en/elasticsearch/reference/current/modules-node.html#coordinating-node), this coordinating node is responsible for doing all aggregation. It forms a star graph with all other shards, typically with itself usually also being a shard.[^1] 
 
-Admittedly, these aggregations may be cheap theoretically, since you should just be merging heaps, but in practice you're also paying for sending payloads over the network and the variability that entails[^2] and I've measured significant impacts to latency.
+Admittedly, these aggregations may be cheap theoretically, since you should just be merging heaps, but in practice you're also paying for sending payloads over the network and the variability that entails[^2]. I've measured significant impacts to latency.
 
-But this is where the oddity of the shared role comes in to disrupt our expectations, because adding replica nodes means adding coordinating nodes, **adding replica nodes also increases the capacity of your aggregators.** This extra capacity reduces utilization, and the [reduced utilization lowers latency](https://erikbern.com/2018/03/27/waiting-time-load-factor-and-queueing-theory.html). Remember, we said we have _compute_ capacity available - it's not yet at significant cpu utilization.
+But this is where the oddity of the shared role comes in to disrupt our expectations, because adding replica nodes means adding coordinating nodes, **adding replica nodes also increases the capacity of your aggregators.** This extra capacity reduces utilization, and the [reduced utilization lowers latency](https://erikbern.com/2018/03/27/waiting-time-load-factor-and-queueing-theory.html). Remember, we said we have _compute_ capacity available - it's not yet at significant cpu utilization, and we're in reality, where most non-trivial workloads include overlapping work units.
 
 ### what other topologies are possible?
 
