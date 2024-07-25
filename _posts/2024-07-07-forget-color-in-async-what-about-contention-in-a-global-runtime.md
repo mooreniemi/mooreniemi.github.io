@@ -2,6 +2,7 @@
 layout: post
 title: forget color in async, what about contention in a global runtime
 date: 2024-07-07 14:21 -0400
+categories: rust
 ---
 
 There's a now famous
@@ -163,5 +164,3 @@ conditions of higher contention.
 Sometimes I like to imagine a new language which would automatically
 generate benchmark code per function such that their performance
 characteristics could be known and force handling by dedicated resources.
-Does such a thing exist?
-

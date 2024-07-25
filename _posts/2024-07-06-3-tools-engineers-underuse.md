@@ -2,109 +2,48 @@
 layout: post
 title: 3 tools engineers underuse
 date: 2024-07-06 12:08 -0400
+categories: process
 ---
 
 There's many tools engineers underuse, but I want to pick on three I don't
-see discussed often: dates, affect, and agency.
+see discussed often: dates, affect, and agency. By "tool" I mean exactly that, something you use to get something done.
 
 # dates
 
 Dates are the first technology of civilization, and the ultimate
-forcing function, especially on knowledge work. Engineers should be able
-to make date estimates even under high ambiguity. More than this,
-engineers should **not fear the future!** If we're not defining it, who
-is?
+forcing function on finite beings, especially in Knowledge Work. And so, widely despised.
 
-In practice, I've observed: i. engineers abdicate the tool by leaving
-dates to their managers or project managers (we'll touch on this more in
-the last tool), ii. engineers let cynicism in when engaging in rituals
-like planning poker, and iii. engineers succumb to wishful thinking about
-how much can get done by when because they don't introspect on their
-previous performance using any data.
+Engineers mostly notice or try to avoid noticing this tool being used against them, but don't often pick it up and wield it themselves.
 
-Planning poker can be useful to structure a conversation about the work
-since two different estimates can force a debate. But I've never found it
-to be an accurately predictive tool. Since it is often posed as
-a sneaky way to get dates out of engineers without calling them dates,
-I find engineers get resistant and dismissive eventually. A few years ago
-I actually did some analysis on the points assigned by my team and found
-that we couldn't really do non-linear pointing (Fibonacci points were
-popular but humans end up scoring linearly basically anyway), and
-ultimately there were just three buckets. Bucket one was work that took
-less than a day. Bucket two was the average task time, which was about
-3 days. And then finally bucket three were the longer outliers where
-a work unit took more than a week.
-
-What I have found to be most constructive and predictive is to evenly
-size tasks as best you can and then [do project estimation based on
+For predicting dates, the best strategy I have found[^1] is to work backwards[^2] from a launch, and evenly
+size tasks and then [do project estimation based on
 average cycle time for your
-tasks](https://www.youtube.com/watch?v=DnPiOI77O88). This of course isn't
-possible if you can't disambiguate the work into even chunks ahead of
-time, but you can actually still use historical task data to understand
-how many chunks you can do by when in an approximate way. If you want
-a rule of thumb, I've found a task per 3 days is fairly consistent across
-teams and types of work.
+tasks](https://www.youtube.com/watch?v=DnPiOI77O88). If you have a "cold start" problem on measured cycle time, set each task at 3 days. 
 
-When you set a date, you can work backwards from that date. You don't need
-to do the whole [working backwards
-process](https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes)
--- just imagining the outcome you're aiming for and how it will launch is
-always useful. Let's say you want to launch in one month, July.
-July has 23 working days. (Don't just use calendar days, humans take time
-off.) If you have a single engineer, they can do about 7 tasks in that
-time. Can you break down the work into roughly 7 chunks? Can you scope
-some of it into the 7 tasks you have space for? If you want to buffer in
-risk, assume you really can do only 5 tasks. Now what would remain in
-scope? Or should you move the date?
+Here I want to note I basically agree with this important backfiring effect of pursuing prediction:
 
-I find engineers are overly afraid of this question, "what should happen
-when dates need to change?" If you've factored your work as described
-above, it's easier to talk about what features can be in and out of scope
-in the timeframe. Dates and features can be renegotiated, but when
-negotiating you need real trade-offs. Being able to concretely trade
-features with time earns trust. If you don't do it, you will find your
-manager doing it for you, and that sets the ceiling on your autonomy. You
-may find that preferable, but let's come back to that.
+> I would argue that most large software engineering organizations incentivize anti-automation and it’s primarily because of their penchant for predictability, especially predictable estimates and predictable work. The reason this happens is that predictable work is work that could have been automated but was not automated. [source](https://www.haskellforall.com/2024/07/software-engineers-are-not-and-should.html)
+
+The more valuable the knowledge work, the more ambiguous, the less predictable -- because it can not be chunked into tasks exactly like previously measured tasks. Yet it has been the most ambiguous situations where forcing the focus on critical path around meeting dates has been most useful.
 
 # affect
 
-**Affect** is a subtle word, and I am using it from psychology to roughly
+I once got very good advice from a Senior PE: "the single biggest blocker I see in promotions to senior engineering is frustration tolerance." Resistance on so-called "soft skills" tricks engineers away from seeing their own **affect** as a tool that shapes their internal and external environment.
+
+Affect is a subtle word, and I am using it from psychology to roughly
 mean: how you feel, how others experience your feelings, and how their
 experience of your feelings makes them feel. Of course, that can complete
 a circuit in changing your feelings based on their response.
 
-Why do I say affect is a _tool_? That sounds a little creepy at first,
-I think. But part of adulthood is at absolute minimum not having temper
-tantrums to get what you want. (What psychology calls "emotional
-self-regulation.") In stressful situations or situations with high
+In stressful situations or situations with high
 ambiguity or high conflict (which tend to become stressful) affect is
 critical, because affect changes how we respond - how we make decisions,
-how we act.
-
-The main tool of affect should be: _how do I remain calm, and increase
+how we act. The main usage of affect should be: _how do I remain calm, and increase
 calm in others, so we can make good decisions?_
 
-But I'd be lying to you if I said negative emotions, like anger, never
-have their place in emphasizing the impact of an action to others. That
-is, if someone ships a bug, I think it's okay to furrow your brow and be
-slightly annoyed. I also think it's fine for a debate about a decision to
-become a bit "heated," as long as there's a cool-down recovery to affirm
-respect between the participants after.
+Sometimes, justly applied, negative affects like visible disappointment and even anger are the most effective. But any emotion outside of calm is very culturally specific, and has to be wielded very carefully.
 
-What I think is less okay is a common pattern I've seen with "rising"
-engineers: contempt as affect. Sometimes engineers learn that an affect of
-"I know better than you" (contempt for the opinions of others) is a way to
-express their frustration. It's true we can end up in scenarios where
-people say and do very stupid things, and this can be frustrating. But
-I've never once seen the affect of contempt help someone grow, on either
-side. What I have seen is that it actually suggests a kind of insecurity
-mixed with resentment in not being noticed yet: "why doesn't leadership
-see me as a peer yet? Why must I convince these people of what's right?"
-
-The answer to those questions are other questions: how do you feel about
-your leadership when they don't seem calm and confident? Why isn't what
-you're proposing already self-evident? Friend, what if you are the problem
-here?
+But... one negative affect I've seen in engineers that I've never seen correlate with maximum impact? Contempt. Sometimes engineers learn that an affect of "I know better than you" is a way to vent their frustration, usually with what is actually low standards. But can contempt trigger higher standards? Can you raise standards with no allies? If it's really so bad, maybe you should just leave! 
 
 Fixing affect is hard. I suggest starting with learning what [affect
 tolerance](https://en.wikipedia.org/wiki/Affect_(psychology)#Affect_tolerance)
@@ -125,13 +64,6 @@ differently now."
 
 # agency
 
-How does one become more effective? I don't think it is something that is
-only done "to" you by others. Ultimately you become more effective because
-you exercise your own agency somehow.
-
-I firmly believe people can be taught to have more agency. The biggest
-blocker in having agency is simply wanting it at all.
-
 There's a two red flags I notice in low-agency thinking: i. explicit
 abdication, eg. "I need to check with ..." (the team, a manager, etc.),
 ii. implicit abdication, which usually takes the form of complaining
@@ -141,8 +73,7 @@ a solution or resisting ownership of the solution.
 There's times to hand off agency to authority: _because you can't take
 responsibility for the outcome._ I'd ask you to consider very seriously
 how much of your life you want to play that way. I think the answer is not
-100%, and not 0%. It is somewhere in between. But it shocks me how little
-people give this any conscious consideration.
+100%, and not 0%.
 
 I mention **dates** and **affect** first because I think they're strong
 inputs into agency. Dates are really about getting comfortable with owning
@@ -180,3 +111,5 @@ If you can't think of any good ideas, give yourself permission to use your
 first bad idea. Perfectionism is its own excuse to be overwhelmed and
 abdicate agency.
 
+[^1]: Early in my career I did an analysis on the "points" assigned by my team during the "planning poker" ritual and found ultimately there were just three buckets. One = took less than a day and probably should not have been a discussion. Two = average task time, which was about 3 days, or the length of time after which someone begins asking "how's it going." And then finally three = outliers where a work unit took more than a week.
+[^2]: You don't need to do the whole [working backwards process](https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes) -- just imagining the outcome you're aiming for and how it will launch is always useful.

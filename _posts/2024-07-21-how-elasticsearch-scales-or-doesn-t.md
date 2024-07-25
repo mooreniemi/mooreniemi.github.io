@@ -3,6 +3,7 @@ layout: post
 title: how elasticsearch scales (or doesn't)
 usemathjax: true
 date: 2024-07-21 22:48 -0400
+categories: scaling search
 ---
 
 If you Google ["adding replicas can't improve search latency elasticsearch"](https://www.google.com/search?q=adding+replicas+can%27t+improve+search+latency+elasticsearch&oq=adding+replicas+can%27t+improve+search+latency+elasticsearch&gs_lcrp=EgZjaHJvbWUyBggAEEUYOTIHCAEQIRigATIHCAIQIRigATIHCAMQIRigATIHCAQQIRigATIHCAUQIRigAdIBCDY2NjFqMGoxqAIAsAIA&sourceid=chrome&ie=UTF-8), you'll find [Distinguished Software Engineer Adrien Grand](https://discuss.elastic.co/t/getting-worse-search-performance-with-a-replica-shard/60880/3) saying something that should be true:

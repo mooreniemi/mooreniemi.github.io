@@ -2,6 +2,7 @@
 layout: post
 title: rum in rust
 date: 2022-12-31 13:30 -0500
+categories: rust cs scaling
 ---
 
 Whenever possible, it's nice to know the theoretical limits of what you're

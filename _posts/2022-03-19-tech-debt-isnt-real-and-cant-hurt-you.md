@@ -2,6 +2,7 @@
 layout: post
 title: tech debt isnt real and cant hurt you
 date: 2022-03-19 18:06 -0400
+categories: process
 ---
 
 On every team I've worked on, including at Amazon, engineers bring up

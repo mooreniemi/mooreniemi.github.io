@@ -4,12 +4,13 @@ title: a (very) scenic tour of hnsw
 date: 2022-12-04 22:21 -0500
 usemathjax: true
 toc: true
+categories: search
 ---
 
 HNSW, which stands for "Hierarchical Navigable Small World" (graphs), is one of
 the first data structures for which I read not just its paper but (a lot of)
 the trail of papers backward in time until I arrived at one with a name
-I already knew. [WIP Post - 01/17/23]
+I already knew.
 
 ### the goal and structure of this tour
 
