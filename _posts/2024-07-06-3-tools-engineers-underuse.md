@@ -8,6 +8,8 @@ categories: process
 There's many tools engineers underuse, but I want to pick on three I don't
 see discussed often: dates, affect, and agency. By "tool" I mean exactly that, something you use to get something done.
 
+> A tool, to paraphrase George Polya, is a trick I use twice.
+
 # dates
 
 Dates are the first technology of civilization, and the ultimate
@@ -24,7 +26,7 @@ Here I want to note I basically agree with this important backfiring effect of p
 
 > I would argue that most large software engineering organizations incentivize anti-automation and it’s primarily because of their penchant for predictability, especially predictable estimates and predictable work. The reason this happens is that predictable work is work that could have been automated but was not automated. [source](https://www.haskellforall.com/2024/07/software-engineers-are-not-and-should.html)
 
-The more valuable the knowledge work, the more ambiguous, the less predictable -- because it can not be chunked into tasks exactly like previously measured tasks. Yet it has been the most ambiguous situations where forcing the focus on critical path around meeting dates has been most useful.
+The more valuable the knowledge work, the more ambiguous, the less predictable -- because it can not be chunked into tasks exactly like previously measured tasks. Yet it has been the most ambiguous situations where forcing the focus on critical path around meeting dates has been most useful. How to keep momentum? I'm sorry to say this but the most effective strategy I've found is set a date and keep checking in on it!
 
 # affect
 
@@ -110,6 +112,8 @@ a good feedback loop.
 If you can't think of any good ideas, give yourself permission to use your
 first bad idea. Perfectionism is its own excuse to be overwhelmed and
 abdicate agency.
+
+---
 
 [^1]: Early in my career I did an analysis on the "points" assigned by my team during the "planning poker" ritual and found ultimately there were just three buckets. One = took less than a day and probably should not have been a discussion. Two = average task time, which was about 3 days, or the length of time after which someone begins asking "how's it going." And then finally three = outliers where a work unit took more than a week.
 [^2]: You don't need to do the whole [working backwards process](https://www.aboutamazon.com/news/workplace/an-insider-look-at-amazons-culture-and-processes) -- just imagining the outcome you're aiming for and how it will launch is always useful.
