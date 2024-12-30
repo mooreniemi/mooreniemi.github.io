@@ -2,8 +2,8 @@
 layout: post
 title: "What AI Meant in 2024"
 date: 2024-12-30 03:47:50 -0500
+toc: true
 categories: ai
-description: ""
 ---
 
 I find myself giving a version of these definitions semi-regularly now to people outside of "the space," and don't really check them against other definitions from inside "the space." It will be fun to see what AI means in 2025 and beyond. (Not that all of the below is from 2024 only; some of these definitions basically go back to ~2018.)
