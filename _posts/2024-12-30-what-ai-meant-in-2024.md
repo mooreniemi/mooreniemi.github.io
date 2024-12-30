@@ -1,10 +1,8 @@
 ---
-layout: 
+layout: post
 title: "What AI Meant in 2024"
 date: 2024-12-30 03:47:50 -0500
-category: 
-author: 
-tags: []
+categories: ai
 description: ""
 ---
 
