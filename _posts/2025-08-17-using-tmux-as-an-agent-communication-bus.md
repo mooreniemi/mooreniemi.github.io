@@ -2,6 +2,7 @@
 layout: post
 title: using tmux as an agent communication bus
 date: 2025-08-17 22:23 -0400
+excerpt: "Surprisingly, q chat works out of the box with tmux as an agent communication bus, while claude code struggles despite both using the same underlying model."
 ---
 
 ## q chat
