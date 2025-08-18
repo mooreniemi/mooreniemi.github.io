@@ -11,8 +11,6 @@ If you run more than one [`q chat`](https://docs.aws.amazon.com/amazonq/latest/q
 
 ![q chat tmux communication bus]({{ site.baseurl }}/images/q_chat_tmux.png)
 
-I first tried this at work, using `q chat`.
-
 It is simple and yet extremely magical to see chats beginning to chat back and forth to each other, with callbacks and delegation. Although I'd set up various `bash` functions to try and help make it more convenient I hardly needed to - out of the box `q chat` is very happy to use `tmux` commands to read, send, and coordinate. The biggest advantage of the functions was being able to insert a logging point so I could inspect all communication between the chats in one log file.
 
 I'd also set up a native `tmux` menu to jump around from chat to chat, but now I largely can stay in one chat and have it direct several others or manipulate other panes. Since those other panes are just receiving "normal" commands, I can view bash history and replay things and inspect things.
@@ -20,6 +18,8 @@ I'd also set up a native `tmux` menu to jump around from chat to chat, but now I
 I was able to direct across many different panes very smoothly, eg. to begin tailing ECS logs in another pane and find why a container was in a crash loop and in another `tmux` window I had it diagnosing why a completely other development host was in a corrupted state...
 
 I felt I was watching something deeper, especially when combined with spinning up Docker workspaces.
+
+I first tried this at work, using `q chat`, then the same principle I thought should work with `claude code`, but had more trouble.
 
 ## claude code
 
