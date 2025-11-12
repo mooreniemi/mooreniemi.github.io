@@ -159,7 +159,12 @@ notice 50ms versus 100ms for something like a web server, and (eg.) a 4xl
 instance (16 vCPUs[^vcpu]) costs 8 times what an l (2 vCPUs) instance
 costs.
 
-Of course, in reality most servers are just waiting on their databases... :)
+There's one final observation we can make that handily bookends things. If we 
+peg utilization to 70%, and can assume we have 8+ cores so overhead is negligible, 
+then we can get max TPS just by doing $$\frac{c\rho}{S}$$, where $$S$$ was just 
+the idle latency we measured by sending a few requests. If you have more hosts, 
+trust your load balancer and just use it to multiply your cores further. This 
+makes your max TPS math simple enough to do in your head!
 
 ----
 
