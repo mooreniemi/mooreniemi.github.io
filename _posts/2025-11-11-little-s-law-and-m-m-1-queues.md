@@ -4,48 +4,83 @@ title: Little's Law, M/M/1 and M/M/c queues
 usemathjax: true
 date: 2025-11-11 23:33 -0500
 ---
-How can we predict performance when load testing a server or set of
-servers?
 
-Well, it's a queue: you send work at a rate (something per something)
-$$\lambda$$, it takes $$W$$ on average time to do the work, and at any
-given time you have $$L$$ work items getting worked on. That's Little's
-Law: $$L = W \cdot \lambda$$, where $$L$$ is requests in the system, $$W$$
-is average base latency in seconds, and $$\lambda$$ is the arrival rate of
-requests/transactions per second.
+How can we predict performance when load testing a server or set of
+servers? For example, how can we predict max TPS?
+
+### magic numbers
+
+![simple formula]({{ site.baseurl }}/images/simple.png)
+
+If you want, you can take my word for it that you want to use at least
+8 physical cores, run at about 70% utilization (if you can't do both of
+those things you really don't need to spend much time thinking about this
+anyway), run a few requests to measure the latency in milliseconds, and then
+use this formula to get your max TPS:
+
+$$
+\boxed{\text{max TPS} = \frac{c \cdot \rho_{\text{target}}}{W} = \frac{c \cdot 0.7}{W}} \tag{1}
+$$
+
+where $$c$$ = number of cores (or cores * hosts if you have multiple
+hosts), $$\rho_{\text{target}}$$ = target utilization (70%), and $$W$$
+= base latency.
+
+### why though?
+
+Well, it's a queue, so we're going to step by step using queuing theory...
+
+![complex derivation]({{ site.baseurl }}/images/complex.png)
+
+Load testing is pretty simple. You send work at a rate (something per
+something) $$\lambda$$, it takes $$W$$ on average seconds to do the work,
+and at any given second you have $$L$$ work items getting worked on.
+That's Little's Law: $$L = W \cdot \lambda$$, where $$L$$ is requests in
+the system, $$W$$ is average base latency in seconds, and $$\lambda$$ is
+the arrival rate of requests/transactions per second.
 
 When doing a load test, you can just run your TPS generator until by some
 measure you consider the system overloaded: "there's the max!" But you can
 also make predictions of what this max, _in some sense_, **should** be.
 You can run a request per second (assuming it runs in under a second) to get
-the average _base_ latency of your system, $$W$$, and if you think about it,
-you realize that it must equal $$\frac{1}{\mu}$$, where $$\mu$$ is the
-maximum TPS the system can take.
+the average _base_ latency of your system, $$W$$, and if you think about
+it, you may say that it must equal $$\frac{1}{\mu}$$, where $$\mu$$ is the
+maximum TPS the system can take, right?
 
-So let's run an example and say that idle state average latency $$W$$ is
-0.05s (50 milliseconds). From that you predict your system's $$\mu$$ (max
-TPS) is 20. (Of course that seems insanely low but don't worry we'll get to
-that in a moment.) First observe that it's a big assumption to believe your
+First observe that it's a big assumption to believe your
 system behaves the same idle as it does busy. As your system receives more
 load, $$\lambda$$, you need to absorb that the utilization you read is an
-_average_ and from the perspective of a given request, it is not guaranteed
-access to idle resources at any given instant inside that second (measurement
-window). That is, even well below _average_ 100% utilization, your request can
-queue. You need a term to model that.
+_average_ **over a second** and from the perspective of a given request, it is
+not guaranteed access to idle resources at any given instant inside that second
+(measurement window). That is, even well below _average_ 100% utilization, your
+request can queue. You need a term to model that, which you don't immediately
+have in Little's Law.
 
 To model this factor of utilization, which will cause a waiting time
 ($$W_q$$ or $$P_{\text{wait}}$$), we can use the M/M/1 queue, which tells
-us that $$W$$ _under load_ will become $$\frac{1}{\mu-\lambda}$$. That
-really makes a lot of sense: if other requests are coming to the server in
-the same second, there's a chance you will compete. To continue the above
-example, this means at 15 TPS (75% utilization), your $$W$$ becomes
-$$\frac{1}{5}$$ or 0.2s (200 milliseconds). That is 4 times slower than
-your idle latency.
+us that $$W$$ _under load_ will become $$\frac{1}{\mu-\lambda}$$ (the
+reciprocal of your spare capacity). That really makes a lot of sense: if
+other requests are coming to the server in the same second, there's
+a chance you will compete. Your average latency is the outcome of
+a weighted probability, where 30% of the time you arrived and there was no
+queue, and 70% of the time you arrived there was a queue.
+
+So let's run an example and say that idle state average latency $$W$$ is
+0.05s (50 milliseconds). From that you predict your system's $$\mu$$ (max
+TPS) is 20. (Of course that seems insanely low but don't worry we'll get
+to that in a moment.) This means at 14 TPS (70% utilization), your $$W$$
+becomes $$\frac{1}{6}$$ or 0.167s (167 milliseconds). That is 3.3 times
+slower than your idle latency.
+
+From this we can also calculate how long requests wait on average when
+they can hit a queue of potentially multiple requests ahead of them. We
+know that the total is 0.167s, and the base latency is 0.05s, and so it
+must be total - base = 0.117s.
 
 There's actually a dimensionless multiplier you can use directly to
 calculate "how many times base latency will $$W$$ be under arrival load
-$$\lambda$$?" $$\frac{1}{1-\frac{\lambda}{\mu}}$$, where $$\frac{\lambda}{\mu}$$ is directly the utilization
-term, $$\rho$$.
+$$\lambda$$?" $$\frac{1}{1-\frac{\lambda}{\mu}}$$, where
+$$\frac{\lambda}{\mu}$$ is directly the utilization term, $$\rho$$.
 
 Now, you should be asking somewhere in reading the foregoing, "hey, wait
 a second, what kind of system are we modeling, is it true to my system?"
@@ -77,13 +112,13 @@ in practice.
 Zoomed out, we're still dealing with:
 
 $$
-\boxed{W = \color{green}{W_q} + \color{red}{\frac{1}{\mu}}} \tag{1}
+\boxed{W = \color{green}{W_q} + \color{red}{\frac{1}{\mu}}} \tag{2}
 $$
 
 But if we zoom in to $$W_q$$, we see:
 
 $$
-\boxed{\color{green}{W_q} = \frac{\color{blue}{\frac{A^c}{c!} \cdot \frac{1}{1-\rho}}}{\color{purple}{\sum_{k=0}^{c-1} \frac{A^k}{k!}} + \color{blue}{\frac{A^c}{c!} \cdot \frac{1}{1-\rho}}} \cdot \color{red}{\frac{1}{\mu}}} \tag{2}
+\boxed{\color{green}{W_q} = \frac{\color{blue}{\frac{A^c}{c!} \cdot \frac{1}{1-\rho}}}{\color{purple}{\sum_{k=0}^{c-1} \frac{A^k}{k!}} + \color{blue}{\frac{A^c}{c!} \cdot \frac{1}{1-\rho}}} \cdot \color{red}{\frac{1}{\mu}}} \tag{3}
 $$
 
 The blue term is just "what's the probability that all cores/servers/workers
@@ -92,7 +127,7 @@ all other states where only k servers are busy?" As a ratio, you're asking
 "what's the probability all workers are busy out of all their potential
 busyness states?" That's the probability you'll wait.
 
-While $$(2)$$ isn't really _that_ bad, it's a bit much for quick napkin
+While $$(3)$$ isn't really _that_ bad, it's a bit much for quick napkin
 math. We can use an approximation of the queue time for G/G/c by
 Allen-Cunneen where the exponent is $$\alpha(c) = \sqrt{2(c+1)-1}$$.
 What's nice about this term is that you can pretty much just memorize
@@ -107,6 +142,8 @@ factor. (Recall $$\rho$$ is equal to $$\frac{\lambda}{\mu}$$.)
 Tabling this out, we can see assuming no parallelism massively
 underestimates our system[^mm1] but that our approximation of Erlang C is
 pretty decent!
+
+#### table 1: estimates of latency overhead by utilization, with error
 
 | ρ (per-core) | M/M/1 | M/M/16 (Erlang C) | M/M/16 (Allen–Cunneen) | Err A-C (%) | Err M/M/1 (%) |
 |--------------|-------|-------------------|------------------------|-------------|---------------|
@@ -127,6 +164,8 @@ If we do our example with 50ms average base latency, you can see we need
 to go above 70% before (to my taste anyway) we see significant latency
 increase:
 
+#### table 2: estimates of latency by utilization
+
 | ρ (per-core) | Queue term ρ^6/[16(1−ρ)] | Mean latency W (s) | Latency (ms) | % overhead vs base |
 |--------------|--------------------------|--------------------|--------------|--------------------|
 | 0.10         | 0.00000007               | 0.05000            | 50.00        | 0.00 %             |
@@ -141,6 +180,8 @@ So if you want a very simple prediction table, you can take common values
 for cores, which are just bases of two, peg the desired utilization at 70% (you
 don't want to waste hardware), and voila you can see your expected latency as
 a function of $$c$$:
+
+#### table 3: given 70% utilization, what is latency per core count?
 
 | cores (c) | α(c) = √(2(c+1)) − 1 | W/S multiplier | W @ S = 10 ms | W @ S = 50 ms | W @ S = 100 ms |
 |-----------|----------------------|----------------|---------------|---------------|----------------|
@@ -159,15 +200,28 @@ notice 50ms versus 100ms for something like a web server, and (eg.) a 4xl
 instance (16 vCPUs[^vcpu]) costs 8 times what an l (2 vCPUs) instance
 costs.
 
-There's one final observation we can make that handily bookends things. If we 
-peg utilization to 70%, and can assume we have 8+ cores so overhead is negligible, 
-then we can get max TPS just by doing $$\frac{c\rho}{S}$$, where $$S$$ was just 
-the idle latency we measured by sending a few requests. If you have more hosts, 
-trust your load balancer and just use it to multiply your cores further. This 
-makes your max TPS math simple enough to do in your head!
+There's one final observation we can make that handily bookends things. If we
+peg utilization to 70%, and can assume we have 8+ cores so overhead is negligible,
+then we can get max TPS just by doing $$\frac{c\rho}{S}$$, where $$S$$ was just
+the idle latency we measured by sending a few requests. If you have more hosts,
+trust your load balancer and just use it to multiply your cores further. This
+makes your max TPS[^max] math simple enough to do in your head!
 
 ----
 
-[^mm1]: It is "fun" to think just how bad latency is for asking a person to take on one more task when they're already busy... People love to estimate like they're M/M/c when they are more M/M/1. ;)
+[^mm1]: It is "fun" to think just how bad latency is for asking a person
+    to take on one more task when they're already busy... People love to
+    estimate like they're M/M/c when they are more M/M/1. ;)
 
-[^vcpu]: Note that a vCPU is a physical core + a hyperthread, so your real utilization is higher than you might expect. As AWS documentation states: "AWS documentation uses the term 'vCPU' synonymously with a 'thread' or a 'hyperthread' (or half of a physical core). Don't miss this factor of 2 when quantifying the performance or cost of an HPC application on AWS." [Source](https://docs.aws.amazon.com/wellarchitected/latest/high-performance-computing-lens/definitions.html)
+[^vcpu]: Note that a vCPU is a physical core + a hyperthread, so your real
+    utilization is higher than you might expect. As AWS documentation
+    states: "AWS documentation uses the term 'vCPU' synonymously with
+    a 'thread' or a 'hyperthread' (or half of a physical core). Don't miss
+    this factor of 2 when quantifying the performance or cost of an HPC
+    application on AWS."
+    [Source](https://docs.aws.amazon.com/wellarchitected/latest/high-performance-computing-lens/definitions.html)
+
+[^max]: Of course, your service depends on many things that are not your CPU,
+    so this max estimate will not be right. But where in the limit it is just
+    bottlenecked on the host capacity you are paying for, CPU is likely the
+    relevant thing.
